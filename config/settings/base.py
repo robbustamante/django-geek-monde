@@ -1,0 +1,362 @@
+"""
+Base settings for Django Geek Monde project.
+These settings are common to all environments.
+"""
+import os
+from pathlib import Path
+from django.utils.translation import gettext_lazy as _
+import environ
+
+# Build paths
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+APPS_DIR = BASE_DIR / 'apps'
+
+# Environment variables
+env = environ.Env()
+env.read_env(str(BASE_DIR / '.env'))
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = env('SECRET_KEY', default='django-insecure-change-me-in-production')
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = env.bool('DEBUG', default=True)
+
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
+
+# Application definition
+DJANGO_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'django.contrib.sites',
+]
+
+THIRD_PARTY_APPS = [
+    'rest_framework',
+    'rest_framework.authtoken',
+    'drf_spectacular',
+    'rest_auth',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'corsheaders',
+    'django_fsm',
+    'fsm_admin',
+    'filer',
+    'easy_thumbnails',
+    'treebeard',
+    'menus',
+    'sekizai',
+    'cms',
+    'adminsortable2',
+    'djangocms_text_ckeditor',
+    'django_select2',
+    'cmsplugin_cascade',
+    'cmsplugin_cascade.clipboard',
+    'cmsplugin_cascade.extra_fields',
+    'cmsplugin_cascade.icon',
+    'cmsplugin_cascade.sharable',
+    'cmsplugin_cascade.segmentation',
+    'post_office',
+]
+
+LOCAL_APPS = [
+    'email_auth',
+    'apps.core',
+    'apps.catalog',
+    'apps.cart',
+    'apps.order',
+    'apps.payment',
+    'apps.shipping',
+    'apps.customer',
+    'apps.inventory',
+]
+
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
+
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
+    'django.middleware.gzip.GZipMiddleware',
+    'cms.middleware.language.LanguageCookieMiddleware',
+    'cms.middleware.user.CurrentUserMiddleware',
+    'cms.middleware.page.CurrentPageMiddleware',
+    'cms.middleware.utils.ApphookReloadMiddleware',
+    'cms.middleware.toolbar.ToolbarMiddleware',
+]
+
+ROOT_URLCONF = 'config.urls'
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [BASE_DIR / 'templates'],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
+                'django.template.context_processors.csrf',
+                'django.template.context_processors.i18n',
+                'sekizai.context_processors.sekizai',
+                'cms.context_processors.cms_settings',
+            ],
+        },
+    },
+    {
+        'BACKEND': 'post_office.template.backends.post_office.PostOfficeTemplates',
+        'APP_DIRS': True,
+        'DIRS': [BASE_DIR / 'templates'],
+        'OPTIONS': {
+            'context_processors': [
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
+                'django.template.context_processors.request',
+            ]
+        }
+    },
+]
+
+# Database
+DATABASES = {
+    'default': env.db(
+        'DATABASE_URL',
+        default='sqlite:///db.sqlite3'
+    )
+}
+
+# Password validation
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
+
+# Internationalization
+LANGUAGE_CODE = 'es'
+LANGUAGES = [
+    ('es', _('Spanish')),
+    ('en', _('English')),
+    ('pt', _('Portuguese')),
+]
+LOCALE_PATHS = [BASE_DIR / 'locale']
+TIME_ZONE = 'America/Argentina/Buenos_Aires'
+USE_I18N = True
+USE_TZ = True
+
+# Static files
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [BASE_DIR / 'static']
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# Default primary key field type
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Sites framework
+SITE_ID = 1
+
+# Django REST Framework
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 25,
+    'DEFAULT_FILTER_BACKENDS': [
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ],
+}
+
+# DRF Spectacular (API Documentation)
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Django Geek Monde API',
+    'DESCRIPTION': 'API REST de comercio electrónico para indumentaria y artículos geek',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}
+
+# CORS Settings
+CORS_ALLOWED_ORIGINS = env.list(
+    'CORS_ALLOWED_ORIGINS',
+    default=['http://localhost:3000', 'http://localhost:8000']
+)
+
+# Authentication
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+AUTH_USER_MODEL = 'email_auth.User'
+
+# Allauth settings
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+
+# Cache
+CACHES = {
+    'default': env.cache(
+        'CACHE_URL',
+        default='locmem://'
+    )
+}
+
+# Sessions
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'default'
+
+# Email
+EMAIL_BACKEND = env(
+    'EMAIL_BACKEND',
+    default='django.core.mail.backends.console.EmailBackend'
+)
+EMAIL_HOST = env('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = env.int('EMAIL_PORT', default=587)
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
+EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='noreply@geek-monde.com')
+
+# Django Post Office
+POST_OFFICE = {
+    'TEMPLATE_ENGINE': 'post_office',
+}
+
+# Logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+}
+
+# CMS Settings
+CMS_TEMPLATES = [
+    ('page.html', _('Default Page')),
+    ('home.html', _('Home Page')),
+    ('catalog.html', _('Catalog Page')),
+]
+
+CMS_PLACEHOLDER_CONF = {
+    'Main Content': {
+        'plugins': ['BootstrapContainerPlugin'],
+    },
+}
+
+CMSPLUGIN_CASCADE_PLUGINS = [
+    'cmsplugin_cascade.bootstrap4',
+    'cmsplugin_cascade.segmentation',
+    'cmsplugin_cascade.generic',
+    'cmsplugin_cascade.icon',
+    'cmsplugin_cascade.leaflet',
+    'cmsplugin_cascade.link',
+    'apps.core.cascade',
+]
+
+CMSPLUGIN_CASCADE = {
+    'link_plugin_classes': [
+        'apps.catalog.cascade.CatalogLinkPluginBase',
+    ],
+    'alien_plugins': ['TextPlugin', 'TextLinkPlugin', 'AcceptConditionPlugin'],
+    'bootstrap4': {
+        'template_basedir': 'angular-ui',
+    },
+}
+
+# Thumbnail settings
+THUMBNAIL_PROCESSORS = (
+    'easy_thumbnails.processors.colorspace',
+    'easy_thumbnails.processors.autocrop',
+    'filer.thumbnail_processors.scale_and_crop_with_subject_location',
+    'easy_thumbnails.processors.filters',
+)
+THUMBNAIL_PRESERVE_EXTENSIONS = True
+
+# Django FSM
+FSM_ADMIN_ACTIONS_PERMISSION = 'change'
+
+# Shop-specific settings
+SHOP_APP_LABEL = 'geek_monde'
+DEFAULT_CURRENCY = 'ARS'
+
+SHOP_CART_MODIFIERS = [
+    'apps.cart.modifiers.DefaultCartModifier',
+    'apps.cart.modifiers.TaxCartModifier',
+    'apps.payment.modifiers.PayInAdvanceModifier',
+]
+
+SHOP_ORDER_WORKFLOWS = [
+    'apps.payment.workflows.ManualPaymentWorkflowMixin',
+    'apps.payment.workflows.CancelOrderWorkflowMixin',
+    'apps.shipping.workflows.PartialDeliveryWorkflowMixin',
+]
+
+# Security settings
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_SECURITY_POLICY = {
+    'default-src': ("'self'",),
+}
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+
+# Silent system checks
+SILENCED_SYSTEM_CHECKS = ['auth.W004']
