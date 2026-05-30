@@ -16,9 +16,9 @@ urlpatterns = [
     path('api/docs/swagger/', SpectacularSwaggerView.as_view(url_name='schema')),
     path('api/docs/redoc/', SpectacularRedocView.as_view(url_name='schema')),
     
-    # Authentication
-    path('api/auth/', include('rest_auth.urls')),
-    path('api/auth/registration/', include('rest_auth.registration.urls')),
+    # Authentication (updated to dj_rest_auth)
+    path('api/auth/', include('dj_rest_auth.urls')),
+    path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
     path('accounts/', include('allauth.urls')),
     
     # Shop API
