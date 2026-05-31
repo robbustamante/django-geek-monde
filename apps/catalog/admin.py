@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 from apps.core.admin import TimeStampedAdmin
-from .models import Category, Product, ProductVariant
+from .models import Category, Product, ProductVariant, ProductImage
 
 
 @admin.register(Category)
@@ -12,11 +12,18 @@ class CategoryAdmin(TimeStampedAdmin):
     search_fields = ('name',)
 
 
+class ProductImageInline(admin.TabularInline):
+    """Inline admin for product images."""
+    model = ProductImage
+    extra = 1
+    fields = ('image', 'alt_text', 'display_order')
+
+
 class ProductVariantInline(admin.TabularInline):
     """Inline admin for product variants."""
     model = ProductVariant
     extra = 1
-    fields = ('size', 'color', 'sku', 'price_adjustment', 'is_active')
+    fields = ('size', 'color', 'sku', 'price_adjustment', 'stock_quantity', 'is_available')
 
 
 @admin.register(Product)
@@ -25,7 +32,7 @@ class ProductAdmin(TimeStampedAdmin):
     list_filter = ('category', 'geek_category', 'clothing_type', 'is_active', 'created_at')
     search_fields = ('name', 'sku', 'description', 'franchise', 'character_name')
     prepopulated_fields = {'slug': ('name',)}
-    inlines = [ProductVariantInline]
+    inlines = [ProductVariantInline, ProductImageInline]
     
     fieldsets = (
         (_('Basic Information'), {
@@ -39,7 +46,7 @@ class ProductAdmin(TimeStampedAdmin):
             'description': _('Anime, Gaming, Movies, or other geek culture details')
         }),
         (_('Clothing Details'), {
-            'fields': ('clothing_type', 'gender_fit', 'size', 'color', 'material'),
+            'fields': ('clothing_type', 'gender_fit', 'material'),
         }),
         (_('Pricing'), {
             'fields': ('price',)
@@ -59,8 +66,8 @@ class ProductAdmin(TimeStampedAdmin):
 
 @admin.register(ProductVariant)
 class ProductVariantAdmin(TimeStampedAdmin):
-    list_display = ('product', 'size', 'color', 'sku', 'price_adjustment', 'is_active')
-    list_filter = ('product', 'size', 'color', 'is_active', 'created_at')
+    list_display = ('product', 'size', 'color', 'sku', 'price_adjustment', 'stock_quantity', 'is_available')
+    list_filter = ('product', 'size', 'color', 'is_available', 'created_at')
     search_fields = ('product__name', 'sku', 'color')
     readonly_fields = ('created_at', 'updated_at')
     
@@ -72,11 +79,30 @@ class ProductVariantAdmin(TimeStampedAdmin):
             'fields': ('price_adjustment',),
             'description': _('Additional cost for this specific variant')
         }),
+        (_('Stock'), {
+            'fields': ('stock_quantity', 'is_available')
+        }),
         (_('Media'), {
             'fields': ('image',)
         }),
-        (_('Status'), {
-            'fields': ('is_active',)
+        (_('Dates'), {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+
+@admin.register(ProductImage)
+class ProductImageAdmin(TimeStampedAdmin):
+    list_display = ('product', 'display_order', 'alt_text', 'created_at')
+    list_filter = ('product', 'created_at')
+    search_fields = ('product__name', 'alt_text')
+    readonly_fields = ('created_at', 'updated_at')
+    ordering = ('product', 'display_order')
+    
+    fieldsets = (
+        (_('Image Details'), {
+            'fields': ('product', 'image', 'alt_text', 'display_order')
         }),
         (_('Dates'), {
             'fields': ('created_at', 'updated_at'),

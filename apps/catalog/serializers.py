@@ -1,6 +1,5 @@
 from rest_framework import serializers
-from django.db.models import Avg
-from .models import Category, Product, ProductVariant, Review
+from .models import Category, Product
 from apps.inventory.models import StockLevel
 
 
@@ -33,25 +32,6 @@ class StockLevelSerializer(serializers.ModelSerializer):
         return obj.quantity - obj.reserved
 
 
-class ProductVariantSerializer(serializers.ModelSerializer):
-    """Serializer para variantes de productos."""
-    final_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
-    
-    class Meta:
-        model = ProductVariant
-        fields = ('id', 'size', 'color', 'sku', 'price_adjustment', 'final_price', 'image', 'is_active')
-
-
-class ReviewSerializer(serializers.ModelSerializer):
-    """Serializer para reseñas."""
-    user_name = serializers.CharField(source='user.get_full_name', read_only=True)
-    
-    class Meta:
-        model = Review
-        fields = ('id', 'user', 'user_name', 'rating', 'comment', 'created_at')
-        read_only_fields = ('user', 'created_at')
-
-
 class ProductSerializer(serializers.ModelSerializer):
     """Serializer para productos."""
     category = CategorySerializer(read_only=True)
@@ -61,15 +41,12 @@ class ProductSerializer(serializers.ModelSerializer):
         source='category'
     )
     stock = serializers.SerializerMethodField()
-    variants = ProductVariantSerializer(many=True, read_only=True)
-    average_rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
         fields = (
             'id', 'name', 'slug', 'sku', 'description', 'price', 'image',
-            'category', 'category_id', 'is_active', 'stock', 'variants', 
-            'average_rating', 'created_at', 'updated_at'
+            'category', 'category_id', 'is_active', 'stock', 'created_at', 'updated_at'
         )
         read_only_fields = ('created_at', 'updated_at', 'slug')
     
@@ -86,8 +63,3 @@ class ProductSerializer(serializers.ModelSerializer):
         except:
             pass
         return {'quantity': 0, 'reserved': 0, 'available': 0}
-
-    def get_average_rating(self, obj):
-        """Obtiene el promedio de calificaciones."""
-        avg = obj.reviews.aggregate(Avg('rating'))['rating__avg']
-        return round(avg, 1) if avg else None

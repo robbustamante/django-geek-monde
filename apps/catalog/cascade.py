@@ -1,13 +1,14 @@
 """
-Catalog CMS Plugin configurations.
+Catalog CMS Cascade plugins and extensions.
+This module extends django-cms-cascade functionality for product catalog.
 """
+from django.utils.translation import gettext_lazy as _
 from cmsplugin_cascade.link.plugin_base import LinkPluginBase
+
 
 class CatalogLinkPluginBase(LinkPluginBase):
     """
     Custom link plugin for catalog items.
-    Allows CMS to link directly to Product and Category models.
+    Allows creating links to products and categories in the CMS.
     """
-    # This is a minimal bridge to satisfy the settings import.
-    # We will expand this with actual link fields later.
     pass

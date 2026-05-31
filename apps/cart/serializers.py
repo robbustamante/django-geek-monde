@@ -1,7 +1,6 @@
 from django.db import models
 from rest_framework import serializers
 from .models import Cart, CartItem
-from apps.catalog.models import Product
 from apps.catalog.serializers import ProductSerializer
 
 
@@ -9,7 +8,7 @@ class CartItemSerializer(serializers.ModelSerializer):
     """Serializer para items del carrito."""
     product = ProductSerializer(read_only=True)
     product_id = serializers.PrimaryKeyRelatedField(
-        queryset=Product.objects.filter(is_active=True),
+        queryset=None,  # Se asigna dinámicamente
         write_only=True,
         source='product'
     )
@@ -19,6 +18,12 @@ class CartItemSerializer(serializers.ModelSerializer):
         model = CartItem
         fields = ('id', 'product', 'product_id', 'quantity', 'subtotal', 'created_at')
         read_only_fields = ('created_at',)
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Permite asignar products dinámicamente
+        from apps.catalog.models import Product
+        self.fields['product_id'].queryset = Product.objects.filter(is_active=True)
     
     def get_subtotal(self, obj):
         """Calcula el subtotal del item."""
@@ -45,3 +50,6 @@ class CartSerializer(serializers.ModelSerializer):
         return obj.items.aggregate(
             total_qty=models.Sum('quantity')
         )['total_qty'] or 0
+
+
+from django.db import models as models

@@ -33,19 +33,26 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ProductSerializer
     permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_class = ProductFilter
+    filterset_fields = ['category', 'is_active']
     search_fields = ['name', 'sku', 'description']
     ordering_fields = ['name', 'price', 'created_at']
     ordering = ['-created_at']
     lookup_field = 'slug'
     
-    @action(detail=True, methods=['get'])
-    def variants(self, request, slug=None):
-        """Obtiene las variantes de un producto específico."""
-        product = self.get_object()
-        variants = product.variants.filter(is_active=True)
-        serializer = ProductVariantSerializer(variants, many=True)
-        return Response(serializer.data)
+    def get_queryset(self):
+        """Filtra productos por precio si se proporciona rango."""
+        queryset = super().get_queryset()
+        
+        # Filtro por rango de precio
+        price_min = self.request.query_params.get('price_min')
+        price_max = self.request.query_params.get('price_max')
+        
+        if price_min:
+            queryset = queryset.filter(price__gte=price_min)
+        if price_max:
+            queryset = queryset.filter(price__lte=price_max)
+        
+        return queryset
 
 
 # Vistas basadas en clases para compatibilidad anterior

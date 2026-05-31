@@ -9,7 +9,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
     """Serializer para items de orden."""
     product = ProductSerializer(read_only=True)
     product_id = serializers.PrimaryKeyRelatedField(
-        queryset=Product.objects.filter(is_active=True),
+        queryset=None,
         write_only=True,
         source='product'
     )
@@ -19,6 +19,11 @@ class OrderItemSerializer(serializers.ModelSerializer):
         model = OrderItem
         fields = ('id', 'product', 'product_id', 'quantity', 'unit_price', 'subtotal', 'created_at')
         read_only_fields = ('unit_price', 'created_at')
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from apps.catalog.models import Product
+        self.fields['product_id'].queryset = Product.objects.filter(is_active=True)
     
     def get_subtotal(self, obj):
         """Calcula el subtotal del item."""

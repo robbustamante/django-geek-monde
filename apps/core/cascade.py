@@ -1,8 +1,15 @@
 """
-Core CMS Plugin base configurations.
+Core CMS Cascade plugins and extensions.
+This module extends django-cms-cascade functionality for the Geek Monde store.
 """
-from cmsplugin_cascade.plugin_base import CascadePluginBase
+from django.utils.translation import gettext_lazy as _
+from cmsplugin_cascade.generic.cms_plugins import TextLinkPlugin
+from cmsplugin_cascade.link.plugin_base import LinkPluginBase
 
-class CorePluginBase(CascadePluginBase):
-    """Base class for all custom project plugins."""
+
+class CoreLinkPluginBase(LinkPluginBase):
+    """
+    Base link plugin for core cascade plugins.
+    Extends the standard cascade link functionality.
+    """
     pass
