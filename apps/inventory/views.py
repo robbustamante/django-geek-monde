@@ -1,10 +1,10 @@
 from rest_framework import generics
 from rest_framework.permissions import AllowAny
-from .models import Stock
-from .serializers import StockSerializer
+from .models import StockLevel
+from .serializers import StockLevelSerializer
 
 
 class StockListView(generics.ListAPIView):
-    queryset = Stock.objects.all()
-    serializer_class = StockSerializer
+    queryset = StockLevel.objects.all()
+    serializer_class = StockLevelSerializer
     permission_classes = [AllowAny]
