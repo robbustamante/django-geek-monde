@@ -24,12 +24,12 @@ test-cov:
 	pytest --cov=apps --cov=config --cov-report=html
 
 lint:
-	flake8 apps config email_auth
-	isort --check-only apps config email_auth
+	flake8 .
+	isort --check-only .
 
 format:
-	isort apps config email_auth
-	black apps config email_auth
+	isort .
+	black .
 
 clean:
 	find . -type d -name __pycache__ -exec rm -rf {} +

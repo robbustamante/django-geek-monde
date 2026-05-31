@@ -17,8 +17,8 @@ urlpatterns = [
     path('api/docs/redoc/', SpectacularRedocView.as_view(url_name='schema')),
     
     # Authentication
-    path('api/auth/', include('rest_auth.urls')),
-    path('api/auth/registration/', include('rest_auth.registration.urls')),
+    path('api/auth/', include('dj_rest_auth.urls')),
+    path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
     path('accounts/', include('allauth.urls')),
     
     # Shop API

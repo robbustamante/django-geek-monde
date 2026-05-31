@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django_fsm_admin.mixins import FSMTransitionMixin
+from django.utils.translation import gettext_lazy as _
 from .models import Order, OrderItem
 
 
@@ -11,7 +11,7 @@ class OrderItemInline(admin.TabularInline):
 
 
 @admin.register(Order)
-class OrderAdmin(FSMTransitionMixin, admin.ModelAdmin):
+class OrderAdmin(admin.ModelAdmin):
     list_display = ('number', 'user', 'status', 'total_amount', 'created_at')
     list_filter = ('status', 'created_at')
     search_fields = ('number', 'user__email')
@@ -29,3 +29,4 @@ class OrderAdmin(FSMTransitionMixin, admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
+

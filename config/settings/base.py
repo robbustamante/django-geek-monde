@@ -3,7 +3,23 @@ Base settings for Django Geek Monde project.
 These settings are common to all environments.
 """
 import os
+import sys
 from pathlib import Path
+
+# Fix for django-fsm-admin compatibility with Django 4.0+
+# (ugettext was removed in Django 4, but django-fsm-admin still uses it)
+import django.utils.translation
+django.utils.translation.ugettext = django.utils.translation.gettext
+django.utils.translation.ugettext_lazy = django.utils.translation.gettext_lazy
+django.utils.translation.ungettext = django.utils.translation.ngettext
+django.utils.translation.ungettext_lazy = django.utils.translation.ngettext_lazy
+
+# force_text/force_bytes were also removed in Django 4.0+
+import django.utils.encoding
+django.utils.encoding.force_text = django.utils.encoding.force_str
+if not hasattr(django.utils.encoding, 'python_2_unicode_compatible'):
+    django.utils.encoding.python_2_unicode_compatible = lambda x: x
+
 from django.utils.translation import gettext_lazy as _
 import environ
 
@@ -25,6 +41,7 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 
 # Application definition
 DJANGO_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -38,7 +55,8 @@ THIRD_PARTY_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'drf_spectacular',
-    'rest_auth',
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -50,6 +68,8 @@ THIRD_PARTY_APPS = [
     'treebeard',
     'menus',
     'sekizai',
+    # email_auth must be registered BEFORE cms loads its permission models
+    'email_auth',
     'cms',
     'adminsortable2',
     'djangocms_text_ckeditor',
@@ -64,7 +84,6 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    'email_auth',
     'apps.core',
     'apps.catalog',
     'apps.cart',
@@ -85,6 +104,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.gzip.GZipMiddleware',
@@ -243,7 +263,7 @@ ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 CACHES = {
     'default': env.cache(
         'CACHE_URL',
-        default='locmem://'
+        default='locmemcache://'
     )
 }
 
@@ -310,17 +330,26 @@ CMSPLUGIN_CASCADE_PLUGINS = [
     'cmsplugin_cascade.icon',
     'cmsplugin_cascade.leaflet',
     'cmsplugin_cascade.link',
-    'apps.core.cascade',
+    'apps.core.cascade',  
 ]
 
 CMSPLUGIN_CASCADE = {
     'link_plugin_classes': [
-        'apps.catalog.cascade.CatalogLinkPluginBase',
+        'apps.catalog.cascade.CatalogLinkPluginBase', 
+        'cmsplugin_cascade.link.forms.LinkForm',
+
     ],
     'alien_plugins': ['TextPlugin', 'TextLinkPlugin', 'AcceptConditionPlugin'],
     'bootstrap4': {
         'template_basedir': 'angular-ui',
     },
+}
+
+# CKEditor settings (required by cmsplugin_cascade)
+from django.utils.text import format_lazy
+from django.urls import reverse_lazy
+CKEDITOR_SETTINGS = {
+    'stylesSet': format_lazy('default:{}', reverse_lazy('admin:cascade_texteditor_config')),
 }
 
 # Thumbnail settings
