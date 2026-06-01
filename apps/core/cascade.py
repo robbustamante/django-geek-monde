@@ -1,8 +1,2 @@
-"""
-Core CMS Plugin base configurations.
-"""
-from cmsplugin_cascade.plugin_base import CascadePluginBase
-
-class CorePluginBase(CascadePluginBase):
-    """Base class for all custom project plugins."""
-    pass
+# This file intentionally left empty.
+# CMS cascade plugins were removed during Django 5.2 migration.

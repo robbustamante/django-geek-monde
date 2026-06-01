@@ -6,20 +6,6 @@ import os
 import sys
 from pathlib import Path
 
-# Fix for django-fsm-admin compatibility with Django 4.0+
-# (ugettext was removed in Django 4, but django-fsm-admin still uses it)
-import django.utils.translation
-django.utils.translation.ugettext = django.utils.translation.gettext
-django.utils.translation.ugettext_lazy = django.utils.translation.gettext_lazy
-django.utils.translation.ungettext = django.utils.translation.ngettext
-django.utils.translation.ungettext_lazy = django.utils.translation.ngettext_lazy
-
-# force_text/force_bytes were also removed in Django 4.0+
-import django.utils.encoding
-django.utils.encoding.force_text = django.utils.encoding.force_str
-if not hasattr(django.utils.encoding, 'python_2_unicode_compatible'):
-    django.utils.encoding.python_2_unicode_compatible = lambda x: x
-
 from django.utils.translation import gettext_lazy as _
 import environ
 
@@ -63,24 +49,12 @@ THIRD_PARTY_APPS = [
     'allauth.socialaccount',
     'corsheaders',
     'django_fsm',
-    'fsm_admin',
     'filer',
     'easy_thumbnails',
-    'treebeard',
-    'menus',
-    'sekizai',
-    # email_auth must be registered BEFORE cms loads its permission models
+    # email_auth must be registered BEFORE other apps that use the custom User model
     'email_auth',
-    'cms',
     'adminsortable2',
-    'djangocms_text_ckeditor',
     'django_select2',
-    'cmsplugin_cascade',
-    'cmsplugin_cascade.clipboard',
-    'cmsplugin_cascade.extra_fields',
-    'cmsplugin_cascade.icon',
-    'cmsplugin_cascade.sharable',
-    'cmsplugin_cascade.segmentation',
     'post_office',
 ]
 
@@ -109,11 +83,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.gzip.GZipMiddleware',
-    'cms.middleware.language.LanguageCookieMiddleware',
-    'cms.middleware.user.CurrentUserMiddleware',
-    'cms.middleware.page.CurrentPageMiddleware',
-    'cms.middleware.utils.ApphookReloadMiddleware',
-    'cms.middleware.toolbar.ToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -134,8 +103,6 @@ TEMPLATES = [
                 'django.template.context_processors.tz',
                 'django.template.context_processors.csrf',
                 'django.template.context_processors.i18n',
-                'sekizai.context_processors.sekizai',
-                'cms.context_processors.cms_settings',
             ],
         },
     },
@@ -197,7 +164,16 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Django 5.x uses STORAGES instead of STATICFILES_STORAGE
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # Media files
 MEDIA_URL = '/media/'
@@ -311,48 +287,6 @@ LOGGING = {
     },
 }
 
-# CMS Settings
-CMS_TEMPLATES = [
-    ('page.html', _('Default Page')),
-    ('home.html', _('Home Page')),
-    ('catalog.html', _('Catalog Page')),
-]
-
-CMS_PLACEHOLDER_CONF = {
-    'Main Content': {
-        'plugins': ['BootstrapContainerPlugin'],
-    },
-}
-
-CMSPLUGIN_CASCADE_PLUGINS = [
-    'cmsplugin_cascade.bootstrap4',
-    'cmsplugin_cascade.segmentation',
-    'cmsplugin_cascade.generic',
-    'cmsplugin_cascade.icon',
-    'cmsplugin_cascade.leaflet',
-    'cmsplugin_cascade.link',
-    'apps.core.cascade',  
-]
-
-CMSPLUGIN_CASCADE = {
-    'link_plugin_classes': [
-        'apps.catalog.cascade.CatalogLinkPluginBase', 
-        'cmsplugin_cascade.link.forms.LinkForm',
-
-    ],
-    'alien_plugins': ['TextPlugin', 'TextLinkPlugin', 'AcceptConditionPlugin'],
-    'bootstrap4': {
-        'template_basedir': 'angular-ui',
-    },
-}
-
-# CKEditor settings (required by cmsplugin_cascade)
-from django.utils.text import format_lazy
-from django.urls import reverse_lazy
-CKEDITOR_SETTINGS = {
-    'stylesSet': format_lazy('default:{}', reverse_lazy('admin:cascade_texteditor_config')),
-}
-
 # Thumbnail settings
 THUMBNAIL_PROCESSORS = (
     'easy_thumbnails.processors.colorspace',
@@ -382,7 +316,6 @@ SHOP_ORDER_WORKFLOWS = [
 ]
 
 # Security settings
-SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_SECURITY_POLICY = {
     'default-src': ("'self'",),
 }

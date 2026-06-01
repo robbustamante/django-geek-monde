@@ -4,7 +4,7 @@ Main URL Configuration for Django Geek Monde project.
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path, include, re_path
+from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 
 urlpatterns = [
@@ -30,8 +30,6 @@ urlpatterns = [
     path('api/v1/customer/', include('apps.customer.urls')),
     path('api/v1/inventory/', include('apps.inventory.urls')),
     
-    # CMS
-    path('cms/', include('cms.urls')),
 ]
 
 # Serve media and static files in development

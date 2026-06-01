@@ -63,7 +63,14 @@ LOGGING['handlers']['file'] = {
 LOGGING['root']['handlers'] = ['file']
 
 # Static files - WhiteNoise for efficient serving
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # CORS - Only allowed hosts
 CORS_ALLOWED_ORIGINS = env.list(
