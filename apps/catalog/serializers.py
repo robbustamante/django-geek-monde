@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.db.models import Avg
-from .models import Category, Product, ProductVariant, Review
+from .models import Category, Product, ProductVariant
 from apps.inventory.models import StockLevel
 
 
@@ -42,16 +42,6 @@ class ProductVariantSerializer(serializers.ModelSerializer):
         fields = ('id', 'size', 'color', 'sku', 'price_adjustment', 'final_price', 'image', 'is_active')
 
 
-class ReviewSerializer(serializers.ModelSerializer):
-    """Serializer para reseñas."""
-    user_name = serializers.CharField(source='user.get_full_name', read_only=True)
-    
-    class Meta:
-        model = Review
-        fields = ('id', 'user', 'user_name', 'rating', 'comment', 'created_at')
-        read_only_fields = ('user', 'created_at')
-
-
 class ProductSerializer(serializers.ModelSerializer):
     """Serializer para productos."""
     category = CategorySerializer(read_only=True)
@@ -63,13 +53,14 @@ class ProductSerializer(serializers.ModelSerializer):
     stock = serializers.SerializerMethodField()
     variants = ProductVariantSerializer(many=True, read_only=True)
     average_rating = serializers.SerializerMethodField()
+    review_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
         fields = (
             'id', 'name', 'slug', 'sku', 'description', 'price', 'image',
             'category', 'category_id', 'is_active', 'stock', 'variants', 
-            'average_rating', 'created_at', 'updated_at'
+            'average_rating', 'review_count', 'created_at', 'updated_at'
         )
         read_only_fields = ('created_at', 'updated_at', 'slug')
     
@@ -88,6 +79,10 @@ class ProductSerializer(serializers.ModelSerializer):
         return {'quantity': 0, 'reserved': 0, 'available': 0}
 
     def get_average_rating(self, obj):
-        """Obtiene el promedio de calificaciones."""
+        """Obtiene el promedio de calificaciones (desde apps.reviews)."""
         avg = obj.reviews.aggregate(Avg('rating'))['rating__avg']
         return round(avg, 1) if avg else None
+
+    def get_review_count(self, obj):
+        """Obtiene la cantidad total de reseñas."""
+        return obj.reviews.count()

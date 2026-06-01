@@ -18,6 +18,13 @@ class Cart(TimeStampedModel):
         related_name='cart',
         verbose_name=_('User')
     )
+    applied_coupon = models.ForeignKey(
+        'discounts.Coupon',
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='carts',
+        verbose_name=_('Applied Coupon')
+    )
     
     class Meta:
         verbose_name = _('Cart')

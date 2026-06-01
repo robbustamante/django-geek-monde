@@ -19,6 +19,7 @@ django-allauth>=65.7.0
 # E-commerce
 django-money>=3.5.0
 django-fsm-2>=3.0.0
+stripe>=10.0.0
 
 # File Management
 django-filer>=3.0.6

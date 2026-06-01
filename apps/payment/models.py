@@ -25,6 +25,12 @@ class Payment(TimeStampedModel):
         ('cash', _('Cash')),
     ]
     
+    PROVIDER_CHOICES = [
+        ('stripe', 'Stripe'),
+        ('mercadopago', 'MercadoPago'),
+        ('manual', 'Manual'),
+    ]
+
     order = models.OneToOneField(
         Order,
         on_delete=models.PROTECT,
@@ -36,9 +42,16 @@ class Payment(TimeStampedModel):
         decimal_places=2,
         verbose_name=_('Amount')
     )
+    provider = models.CharField(
+        max_length=20,
+        choices=PROVIDER_CHOICES,
+        default='manual',
+        verbose_name=_('Provider')
+    )
     method = models.CharField(
         max_length=20,
         choices=METHOD_CHOICES,
+        blank=True,
         verbose_name=_('Payment Method')
     )
     status = models.CharField(
@@ -51,6 +64,21 @@ class Payment(TimeStampedModel):
         max_length=100,
         blank=True,
         verbose_name=_('Transaction ID')
+    )
+    stripe_payment_intent_id = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name=_('Stripe Payment Intent ID')
+    )
+    mercadopago_preference_id = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name=_('MercadoPago Preference ID')
+    )
+    metadata = models.JSONField(
+        default=dict,
+        blank=True,
+        verbose_name=_('Metadata')
     )
     
     class Meta:

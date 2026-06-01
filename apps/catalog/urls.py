@@ -1,6 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
+from apps.reviews.views import ProductReviewViewSet
 
 app_name = 'catalog'
 
@@ -9,9 +10,16 @@ router = DefaultRouter()
 router.register(r'categories', views.CategoryViewSet, basename='category')
 router.register(r'products', views.ProductViewSet, basename='product')
 
+# Router para reviews anidadas bajo productos
+review_router = DefaultRouter()
+review_router.register(r'', ProductReviewViewSet, basename='product-review')
+
 urlpatterns = [
     # ViewSets URLs
     path('', include(router.urls)),
+    
+    # Reviews anidadas: /api/v1/catalog/products/{slug}/reviews/
+    path('products/<slug:product_slug>/reviews/', include(review_router.urls)),
     
     # URLs compatibles (mantener por backward compatibility)
     path('products/list/', views.ProductListView.as_view(), name='product-list'),

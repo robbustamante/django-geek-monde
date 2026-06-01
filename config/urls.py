@@ -29,6 +29,10 @@ urlpatterns = [
     path('api/v1/shipping/', include('apps.shipping.urls')),
     path('api/v1/customer/', include('apps.customer.urls')),
     path('api/v1/inventory/', include('apps.inventory.urls')),
+    path('api/v1/discounts/', include('apps.discounts.urls')),
+    
+    # Reviews
+    path('api/v1/reviews/', include('apps.reviews.urls')),
     
 ]
 

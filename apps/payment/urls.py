@@ -5,6 +5,7 @@ from . import views
 app_name = 'payment'
 
 router = DefaultRouter()
+router.register(r'stripe', views.StripePaymentViewSet, basename='stripe-payment')
 router.register(r'', views.PaymentViewSet, basename='payment')
 
 urlpatterns = [

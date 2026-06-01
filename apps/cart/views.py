@@ -23,8 +23,39 @@ class CartViewSet(viewsets.ViewSet):
 
     @action(detail=False, methods=['post'], url_path='apply-coupon')
     def apply_coupon(self, request):
-        """POST /api/v1/cart/apply-coupon/ - Aplicar cupón (futuro)"""
-        return Response({'message': 'Funcionalidad de cupones en desarrollo.'}, status=status.HTTP_501_NOT_IMPLEMENTED)
+        """POST /api/v1/cart/apply-coupon/ - Apply a coupon to the cart."""
+        cart, _ = Cart.objects.get_or_create(user=request.user)
+        code = request.data.get('code')
+        
+        if not code:
+            return Response({'error': 'Se requiere el código del cupón.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        # Calculate subtotal using serializer logic
+        cart_data = CartSerializer(cart).data
+        subtotal = float(cart_data['subtotal'])
+        
+        from apps.discounts.services import CouponService
+        is_valid, error_msg, coupon = CouponService.validate_coupon(
+            coupon_code=code,
+            user=request.user,
+            subtotal=subtotal
+        )
+        
+        if not is_valid:
+            return Response({'error': error_msg}, status=status.HTTP_400_BAD_REQUEST)
+            
+        cart.applied_coupon = coupon
+        cart.save()
+        
+        return Response(CartSerializer(cart).data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'], url_path='remove-coupon')
+    def remove_coupon(self, request):
+        """POST /api/v1/cart/remove-coupon/ - Remove applied coupon."""
+        cart, _ = Cart.objects.get_or_create(user=request.user)
+        cart.applied_coupon = None
+        cart.save()
+        return Response(CartSerializer(cart).data, status=status.HTTP_200_OK)
 
 
 class CartItemViewSet(viewsets.ModelViewSet):

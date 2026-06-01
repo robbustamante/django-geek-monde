@@ -4,17 +4,20 @@ from apps.order.models import Order
 
 
 class PaymentSerializer(serializers.ModelSerializer):
-    """Serializer para pagos."""
+    """Serializer para modelo de pago."""
     order_number = serializers.CharField(source='order.number', read_only=True)
     
     class Meta:
         model = Payment
         fields = (
-            'id', 'order', 'order_number', 'amount', 'method', 'status',
-            'provider', 'stripe_payment_intent_id', 'transaction_id',
-            'created_at', 'updated_at'
+            'id', 'order', 'order_number', 'amount', 'provider', 'method', 
+            'status', 'transaction_id', 'stripe_payment_intent_id', 
+            'mercadopago_preference_id', 'created_at', 'updated_at'
         )
-        read_only_fields = ('created_at', 'updated_at', 'stripe_payment_intent_id')
+        read_only_fields = (
+            'status', 'transaction_id', 'stripe_payment_intent_id', 
+            'mercadopago_preference_id', 'created_at', 'updated_at'
+        )
 
 
 class PaymentCreateSerializer(serializers.Serializer):

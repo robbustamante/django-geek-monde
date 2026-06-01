@@ -61,6 +61,8 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     'apps.core',
     'apps.catalog',
+    'apps.reviews',
+    'apps.discounts',
     'apps.cart',
     'apps.order',
     'apps.payment',
@@ -323,3 +325,8 @@ X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 # Silent system checks
 SILENCED_SYSTEM_CHECKS = ['auth.W004']
+
+# Stripe Configuration
+STRIPE_PUBLIC_KEY = env('STRIPE_PUBLIC_KEY', default='')
+STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY', default='')
+STRIPE_WEBHOOK_SECRET = env('STRIPE_WEBHOOK_SECRET', default='')

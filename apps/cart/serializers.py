@@ -1,9 +1,11 @@
 from django.db import models
 from rest_framework import serializers
+from decimal import Decimal
 from .models import Cart, CartItem
 from apps.catalog.models import Product
 from apps.catalog.serializers import ProductSerializer
-
+from apps.discounts.serializers import CouponSerializer
+from apps.discounts.services import CouponService
 
 class CartItemSerializer(serializers.ModelSerializer):
     """Serializer para items del carrito."""
@@ -28,17 +30,38 @@ class CartItemSerializer(serializers.ModelSerializer):
 class CartSerializer(serializers.ModelSerializer):
     """Serializer para el carrito."""
     items = CartItemSerializer(many=True, read_only=True)
-    total = serializers.SerializerMethodField()
     items_count = serializers.SerializerMethodField()
+    subtotal = serializers.SerializerMethodField()
+    applied_coupon = CouponSerializer(read_only=True)
+    discount_amount = serializers.SerializerMethodField()
+    total = serializers.SerializerMethodField()
 
     class Meta:
         model = Cart
-        fields = ('id', 'items', 'total', 'items_count', 'created_at', 'updated_at')
+        fields = ('id', 'items', 'items_count', 'subtotal', 'applied_coupon', 'discount_amount', 'total', 'created_at', 'updated_at')
         read_only_fields = ('created_at', 'updated_at')
     
+    def get_subtotal(self, obj):
+        """Calcula el subtotal sin descuento."""
+        return sum(item.product.price * item.quantity for item in obj.items.all())
+
+    def get_discount_amount(self, obj):
+        """Calcula el monto del descuento si hay un cupón."""
+        subtotal = self.get_subtotal(obj)
+        if obj.applied_coupon:
+            # Re-validate first to ensure it's still valid
+            is_valid, _, coupon = CouponService.validate_coupon(
+                obj.applied_coupon.code, obj.user, subtotal
+            )
+            if is_valid:
+                return float(CouponService.calculate_discount(coupon, subtotal))
+        return 0.0
+
     def get_total(self, obj):
-        """Calcula el total del carrito."""
-        return sum(float(item.product.price * item.quantity) for item in obj.items.all())
+        """Calcula el total final (subtotal - descuento)."""
+        subtotal = float(self.get_subtotal(obj))
+        discount = self.get_discount_amount(obj)
+        return max(0.0, subtotal - discount)
     
     def get_items_count(self, obj):
         """Cuenta items en el carrito."""

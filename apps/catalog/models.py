@@ -3,7 +3,6 @@ Catalog models for product management.
 """
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.conf import settings
 from apps.core.models import TimeStampedModel
 
 
@@ -222,36 +221,3 @@ class ProductVariant(TimeStampedModel):
         return self.product.price + self.price_adjustment
 
 
-class Review(TimeStampedModel):
-    """
-    Product review and rating.
-    """
-    product = models.ForeignKey(
-        Product,
-        on_delete=models.CASCADE,
-        related_name='reviews',
-        verbose_name=_('Product')
-    )
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='reviews',
-        verbose_name=_('User')
-    )
-    rating = models.PositiveSmallIntegerField(
-        choices=[(i, str(i)) for i in range(1, 6)],
-        verbose_name=_('Rating')
-    )
-    comment = models.TextField(
-        blank=True,
-        verbose_name=_('Comment')
-    )
-    
-    class Meta:
-        verbose_name = _('Review')
-        verbose_name_plural = _('Reviews')
-        ordering = ('-created_at',)
-        unique_together = ('product', 'user')  # One review per product per user
-
-    def __str__(self):
-        return f"{self.user} - {self.product.name} ({self.rating} stars)"
