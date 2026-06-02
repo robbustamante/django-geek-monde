@@ -20,10 +20,12 @@ django-allauth>=65.7.0
 django-money>=3.5.0
 django-fsm-2>=3.0.0
 stripe>=10.0.0
+mercadopago
 
 # File Management
 django-filer>=3.0.6
 easy-thumbnails>=2.8.5
+xhtml2pdf>=0.2.11
 
 # Forms & Fields
 django-select2>=8.2.0

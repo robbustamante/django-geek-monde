@@ -151,6 +151,105 @@ class StripePaymentViewSet(viewsets.ViewSet):
         return Response(status=status.HTTP_200_OK)
 
 
+class MercadoPagoViewSet(viewsets.ViewSet):
+    """ViewSet para la integración con MercadoPago."""
+    
+    def get_permissions(self):
+        # Webhook no requiere autenticación
+        if self.action == 'webhook':
+            return [AllowAny()]
+        return [IsAuthenticated()]
+
+    @action(detail=False, methods=['post'], url_path='create-preference')
+    def create_preference(self, request):
+        order_id = request.data.get('order_id')
+        if not order_id:
+            return Response({'error': 'order_id es requerido'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        order = get_object_or_404(Order, id=order_id, user=request.user)
+        
+        if order.status != 'pending':
+            return Response({'error': 'La orden no está en estado pending'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        from .integrations.mercadopago_gateway import MercadoPagoGateway
+        gateway = MercadoPagoGateway()
+        
+        try:
+            result = gateway.create_intent(order, order.total_amount)
+            
+            # Crear o actualizar el Payment
+            payment, created = Payment.objects.get_or_create(
+                order=order,
+                defaults={
+                    'amount': order.total_amount,
+                    'provider': 'mercadopago',
+                    'method': 'credit_card',
+                    'status': 'pending',
+                }
+            )
+            
+            payment.mercadopago_preference_id = result['intent_id']
+            payment.save()
+            
+            return Response({
+                'init_point': result['init_point'],
+                'preference_id': result['intent_id'],
+                'payment_id': payment.id
+            }, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['post'])
+    def webhook(self, request):
+        """
+        Recibe notificaciones IPN o Webhooks de MP.
+        MP puede enviar data via GET (topic/id) o POST (body).
+        Para simplificar, tomamos request.GET o request.data.
+        """
+        payload = request.data if request.data else request.GET.dict()
+        
+        # En caso de webhook de test sin datos útiles
+        if not payload:
+            return Response(status=status.HTTP_200_OK)
+            
+        from .integrations.mercadopago_gateway import MercadoPagoGateway
+        gateway = MercadoPagoGateway()
+        
+        try:
+            event = gateway.process_webhook(payload)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            
+        # Manejar el evento (approved, rejected, etc.)
+        status_mp = event.get('type')
+        order_id = event.get('external_reference')
+        
+        if not order_id:
+            return Response(status=status.HTTP_200_OK)
+            
+        try:
+            payment = Payment.objects.get(order__id=order_id, provider='mercadopago')
+            
+            if status_mp == 'approved':
+                payment.status = 'completed'
+                payment.transaction_id = str(event['data'].get('id', ''))
+                payment.save()
+                
+                if payment.order.status == 'pending':
+                    payment.order.mark_processing()
+                    payment.order.save()
+                    
+            elif status_mp in ['rejected', 'cancelled']:
+                payment.status = 'failed'
+                payment.save()
+                
+        except Payment.DoesNotExist:
+            pass
+            
+        return Response(status=status.HTTP_200_OK)
+
+
 class PaymentMethodListView(generics.GenericAPIView):
     """Lista métodos de pago disponibles."""
     permission_classes = [AllowAny]

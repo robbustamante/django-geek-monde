@@ -81,6 +81,57 @@ class OrderViewSet(viewsets.ModelViewSet):
         serializer = OrderItemSerializer(items, many=True)
         return Response(serializer.data)
 
+    @action(detail=True, methods=['get'], url_path='invoice/download')
+    def download_invoice(self, request, number=None):
+        """Descargar factura PDF."""
+        from django.http import HttpResponse
+        from .utils.invoice_generator import generate_invoice_pdf
+        
+        order = self.get_object()
+        pdf_bytes = generate_invoice_pdf(order)
+        
+        if pdf_bytes:
+            response = HttpResponse(pdf_bytes, content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="factura_{order.number}.pdf"'
+            return response
+        
+        return Response(
+            {'error': 'No se pudo generar la factura'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+    @action(detail=True, methods=['post'], url_path='invoice/send')
+    def send_invoice(self, request, number=None):
+        """Enviar factura PDF por email."""
+        from django.core.mail import EmailMessage
+        from .utils.invoice_generator import generate_invoice_pdf
+        
+        order = self.get_object()
+        pdf_bytes = generate_invoice_pdf(order)
+        
+        if not pdf_bytes:
+            return Response(
+                {'error': 'No se pudo generar la factura'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+            
+        try:
+            email = EmailMessage(
+                subject=f'Factura de tu compra en Geek Monde (Orden #{order.number})',
+                body=f'Hola {order.user.get_full_name()},\n\nAdjuntamos la factura de tu reciente compra.\n\nGracias por elegirnos.',
+                from_email='noreply@geek-monde.com',
+                to=[order.user.email],
+            )
+            email.attach(f'factura_{order.number}.pdf', pdf_bytes, 'application/pdf')
+            email.send()
+            
+            return Response({'message': 'Factura enviada correctamente'})
+        except Exception as e:
+            return Response(
+                {'error': f'Error enviando email: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 
 # Imports para vistas legacy
 from .serializers import OrderItemSerializer

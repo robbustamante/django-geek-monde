@@ -6,6 +6,7 @@ app_name = 'payment'
 
 router = DefaultRouter()
 router.register(r'stripe', views.StripePaymentViewSet, basename='stripe-payment')
+router.register(r'mercadopago', views.MercadoPagoViewSet, basename='mercadopago-payment')
 router.register(r'', views.PaymentViewSet, basename='payment')
 
 urlpatterns = [

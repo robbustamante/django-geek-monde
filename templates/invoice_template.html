@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Factura #{{ order.number }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+        }
+        .header h1 {
+            margin: 0;
+            color: #2c3e50;
+        }
+        .info-section {
+            margin-bottom: 30px;
+        }
+        .info-section p {
+            margin: 5px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .total-section {
+            text-align: right;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Geek Monde</h1>
+        <p>Factura de Compra</p>
+    </div>
+
+    <div class="info-section">
+        <p><strong>Factura #:</strong> {{ order.number }}</p>
+        <p><strong>Fecha:</strong> {{ order.created_at|date:"d/m/Y" }}</p>
+        <p><strong>Cliente:</strong> {{ order.user.get_full_name|default:order.user.email }}</p>
+        <p><strong>Estado:</strong> {{ order.get_status_display }}</p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Unit.</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order.items.all %}
+            <tr>
+                <td>{{ item.product_name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>${{ item.price }}</td>
+                <td>${{ item.subtotal }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="total-section">
+        <p><strong>Total: ${{ order.total_amount }}</strong></p>
+    </div>
+
+    <div class="footer">
+        <p>Gracias por tu compra en Geek Monde.</p>
+        <p>www.geek-monde.com</p>
+    </div>
+</body>
+</html>
