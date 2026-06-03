@@ -43,7 +43,7 @@ class CartSerializer(serializers.ModelSerializer):
     
     def get_subtotal(self, obj):
         """Calcula el subtotal sin descuento."""
-        return sum(item.product.price * item.quantity for item in obj.items.all())
+        return sum((item.product.price * item.quantity for item in obj.items.all()), Decimal('0.0'))
 
     def get_discount_amount(self, obj):
         """Calcula el monto del descuento si hay un cupón."""

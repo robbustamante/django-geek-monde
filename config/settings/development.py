@@ -57,7 +57,13 @@ REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'].append(
 # Security - Relaxed for development
 SECURE_SSL_REDIRECT = False
 SESSION_COOKIE_SECURE = False
-CRSF_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://192.168.56.1:3000',
+]
 
 # Static files - No compression for development
 STORAGES = {

@@ -11,12 +11,22 @@ from apps.catalog.models import Product
 class Cart(TimeStampedModel):
     """
     Shopping cart model.
+    Supports both authenticated users and anonymous sessions.
     """
-    user = models.OneToOneField(
+    user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='cart',
-        verbose_name=_('User')
+        related_name='carts',
+        verbose_name=_('User'),
+        null=True,
+        blank=True,
+    )
+    session_key = models.CharField(
+        max_length=40,
+        null=True,
+        blank=True,
+        db_index=True,
+        verbose_name=_('Session Key'),
     )
     applied_coupon = models.ForeignKey(
         'discounts.Coupon',
@@ -31,7 +41,9 @@ class Cart(TimeStampedModel):
         verbose_name_plural = _('Carts')
     
     def __str__(self):
-        return f"Cart for {self.user}"
+        if self.user:
+            return f"Cart for {self.user}"
+        return f"Anonymous cart ({self.session_key})"
 
 
 class CartItem(TimeStampedModel):

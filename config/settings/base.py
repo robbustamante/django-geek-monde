@@ -51,7 +51,6 @@ THIRD_PARTY_APPS = [
     'django_fsm',
     'filer',
     'easy_thumbnails',
-    # email_auth must be registered BEFORE other apps that use the custom User model
     'email_auth',
     'adminsortable2',
     'django_select2',
@@ -82,6 +81,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+    'config.settings.base.ExceptionLoggingMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.gzip.GZipMiddleware',
@@ -191,7 +191,6 @@ SITE_ID = 1
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
@@ -222,6 +221,7 @@ CORS_ALLOWED_ORIGINS = env.list(
     'CORS_ALLOWED_ORIGINS',
     default=['http://localhost:3000', 'http://localhost:8000']
 )
+CORS_ALLOW_CREDENTIALS = True
 
 # Authentication
 AUTHENTICATION_BACKENDS = [
@@ -236,7 +236,7 @@ ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_USER_MODEL_USERNAME_FIELD = 'username'
 
 # Cache
 CACHES = {
@@ -333,3 +333,22 @@ STRIPE_WEBHOOK_SECRET = env('STRIPE_WEBHOOK_SECRET', default='')
 
 # MercadoPago Configuration
 MERCADOPAGO_ACCESS_TOKEN = env('MERCADOPAGO_ACCESS_TOKEN', default='')
+
+class ExceptionLoggingMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        return self.get_response(request)
+
+    def process_exception(self, request, exception):
+        import traceback
+        with open('error_debug.txt', 'w') as f:
+            f.write(traceback.format_exc())
+        return None
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://192.168.56.1:3000',
+]

@@ -12,6 +12,7 @@ urlpatterns = [
     path('', views.CartViewSet.as_view({'get': 'list'}), name='my-cart'),
     path('apply-coupon/', views.CartViewSet.as_view({'post': 'apply_coupon'}), name='apply-coupon'),
     path('remove-coupon/', views.CartViewSet.as_view({'post': 'remove_coupon'}), name='remove-coupon'),
+    path('merge-cart/', views.CartViewSet.as_view({'post': 'merge_cart'}), name='merge-cart'),
     
     # Rutas generadas para items/ (POST, PATCH, DELETE)
     path('', include(router.urls)),
