@@ -179,9 +179,9 @@ export default function CartPage() {
               <span>Total</span>
               <span>${cart?.total.toFixed(2)}</span>
             </div>
-            <button className={styles.checkoutBtn}>
+            <Link href="/checkout" className={styles.checkoutBtn}>
               Proceder al Pago
-            </button>
+            </Link>
           </div>
         </>
       )}

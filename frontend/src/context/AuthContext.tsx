@@ -47,7 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchUser = async (authToken: string) => {
     try {
-      const res = await fetch("/api/auth/user/", {
+      const res = await apiFetch("/api/auth/user/", {
         headers: { Authorization: `Token ${authToken}` },
       });
       if (res.ok) {

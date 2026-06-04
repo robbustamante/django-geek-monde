@@ -22,7 +22,9 @@ export default function LoginPage() {
     const result = await login(email, password);
 
     if (result.ok) {
-      router.push("/");
+      const searchParams = new URLSearchParams(window.location.search);
+      const next = searchParams.get("next");
+      router.push(next || "/");
     } else {
       setError(result.error || "Error al iniciar sesión");
     }
