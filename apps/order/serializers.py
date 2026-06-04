@@ -32,11 +32,13 @@ class OrderSerializer(serializers.ModelSerializer):
     user_email = serializers.CharField(source='user.email', read_only=True)
     user_name = serializers.CharField(source='user.get_full_name', read_only=True)
 
+    shipping_address = serializers.SerializerMethodField()
+
     class Meta:
         model = Order
         fields = (
             'id', 'number', 'user', 'user_email', 'user_name', 'status',
-            'total_amount', 'items', 'payment', 'created_at', 'updated_at'
+            'total_amount', 'items', 'payment', 'shipping_address', 'created_at', 'updated_at'
         )
         read_only_fields = ('user', 'number', 'created_at', 'updated_at')
     
@@ -49,22 +51,39 @@ class OrderSerializer(serializers.ModelSerializer):
             pass
         return None
 
+    def get_shipping_address(self, obj):
+        """Obtiene info de la dirección de envío si existe."""
+        if obj.shipping_address:
+            from apps.customer.serializers import AddressSerializer
+            return AddressSerializer(obj.shipping_address).data
+        return None
+
 
 class OrderCreateSerializer(serializers.Serializer):
     """Serializer para crear una orden desde el carrito."""
-    items = OrderItemSerializer(many=True)
+    items = OrderItemSerializer(many=True, read_only=True)
+    shipping_address_id = serializers.IntegerField(required=False, allow_null=True)
     
     def create(self, validated_data):
         """Crea una orden a partir de los items."""
         from apps.cart.models import Cart
+        from apps.customer.models import Address
         from django.utils.timezone import now
         from uuid import uuid4
         
         user = self.context['request'].user
         cart = Cart.objects.get(user=user)
+        shipping_address_id = validated_data.get('shipping_address_id')
         
         if not cart.items.exists():
             raise serializers.ValidationError('El carrito está vacío')
+            
+        shipping_address = None
+        if shipping_address_id:
+            try:
+                shipping_address = Address.objects.get(id=shipping_address_id, user=user)
+            except Address.DoesNotExist:
+                raise serializers.ValidationError({'shipping_address_id': 'Dirección no válida.'})
         
         # Crear número de orden único
         order_number = f"ORD-{int(now().timestamp())}-{str(uuid4())[:8].upper()}"
@@ -79,7 +98,8 @@ class OrderCreateSerializer(serializers.Serializer):
         order = Order.objects.create(
             user=user,
             number=order_number,
-            total_amount=total_amount
+            total_amount=total_amount,
+            shipping_address=shipping_address
         )
         
         # Copiar items del carrito a la orden

@@ -1,0 +1,124 @@
+.container {
+  padding: 4rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 70vh;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 3rem;
+}
+
+.section {
+  background: rgba(20, 20, 30, 0.4);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: #fff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 1rem;
+}
+
+.summaryItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 0;
+  color: #aaa;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.summaryTotal {
+  display: flex;
+  justify-content: space-between;
+  padding: 1.5rem 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: white;
+}
+
+.loading {
+  text-align: center;
+  padding: 5rem;
+  font-size: 1.2rem;
+  color: #aaa;
+}
+
+.error {
+  background: rgba(255, 0, 0, 0.1);
+  color: #ff4d4d;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.successContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 2rem;
+  text-align: center;
+  background: rgba(20, 20, 30, 0.6);
+  border-radius: 24px;
+  border: 1px solid rgba(0, 255, 170, 0.3);
+}
+
+.successIcon {
+  font-size: 5rem;
+  margin-bottom: 1rem;
+  text-shadow: 0 0 20px rgba(0, 255, 170, 0.5);
+}
+
+.successTitle {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  color: #00ffaa;
+}
+
+.successText {
+  color: #ccc;
+  font-size: 1.2rem;
+  margin-bottom: 3rem;
+}
+
+.homeBtn {
+  padding: 1rem 2.5rem;
+  border-radius: 30px;
+  background: transparent;
+  border: 2px solid #00ffaa;
+  color: #00ffaa;
+  font-weight: 700;
+  font-size: 1.1rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.homeBtn:hover {
+  background: #00ffaa;
+  color: #000;
+  box-shadow: 0 0 20px rgba(0, 255, 170, 0.4);
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}

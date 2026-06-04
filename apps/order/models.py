@@ -34,6 +34,14 @@ class Order(TimeStampedModel):
         decimal_places=2,
         verbose_name=_('Total Amount')
     )
+    shipping_address = models.ForeignKey(
+        'customer.Address',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='orders',
+        verbose_name=_('Shipping Address')
+    )
     
     class Meta:
         verbose_name = _('Order')
