@@ -33,7 +33,10 @@ urlpatterns = [
     
     # Reviews
     path('api/v1/reviews/', include('apps.reviews.urls')),
-    
+
+    # Notifications
+    path('api/v1/notifications/', include('apps.notifications.urls')),
+
 ]
 
 # Serve media and static files in development

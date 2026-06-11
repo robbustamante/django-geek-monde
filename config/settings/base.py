@@ -335,6 +335,28 @@ STRIPE_WEBHOOK_SECRET = env('STRIPE_WEBHOOK_SECRET', default='')
 # MercadoPago Configuration
 MERCADOPAGO_ACCESS_TOKEN = env('MERCADOPAGO_ACCESS_TOKEN', default='')
 
+# Celery Configuration
+CELERY_BROKER_URL = env('CELERY_BROKER_URL', default='redis://127.0.0.1:6379/0')
+CELERY_RESULT_BACKEND = env('CELERY_RESULT_BACKEND', default='redis://127.0.0.1:6379/0')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+
+# Beat schedule para tareas periódicas
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    'check-abandoned-carts': {
+        'task': 'apps.notifications.tasks.check_abandoned_carts',
+        'schedule': crontab(minute=0),  # Cada hora
+    },
+    'check-low-stock': {
+        'task': 'apps.notifications.tasks.check_low_stock',
+        'schedule': crontab(minute=0, hour='*/6'),  # Cada 6 horas
+    },
+}
+
 class ExceptionLoggingMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
