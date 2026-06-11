@@ -2,6 +2,16 @@
 
 API REST de comercio electrónico para indumentaria y artículos geek, desarrollada en Django. Implementa modelos dinámicos para variantes de productos, manejo avanzado de stock con control de concurrencia y seguridad mediante middlewares.
 
+## 📊 Composición Técnica
+
+| Lenguaje | Porcentaje |
+|----------|-----------|
+| Python | 66.9% |
+| TypeScript | 19.8% |
+| CSS | 11.6% |
+| HTML | 1.2% |
+| Otro | 0.5% |
+
 ## Características
 
 - 🛍️ **Catálogo de Productos** - Gestión completa de productos, categorías y variantes
@@ -14,6 +24,7 @@ API REST de comercio electrónico para indumentaria y artículos geek, desarroll
 - 🔐 **Autenticación** - Sistema de autenticación basado en email
 - 📚 **API Documentation** - Documentación interactiva con Swagger/Redoc
 - 🌐 **CMS integrado** - Django CMS para contenido editorial
+- 🎨 **Frontend Moderno** - Interfaz desarrollada con TypeScript y CSS
 
 ## Requisitos
 
@@ -21,6 +32,7 @@ API REST de comercio electrónico para indumentaria y artículos geek, desarroll
 - Django 4.2+
 - PostgreSQL (recomendado para producción)
 - Redis (opcional, para caché)
+- Node.js 18+ (para frontend)
 
 ## Instalación
 
@@ -71,6 +83,16 @@ make run
 
 El servidor estará disponible en `http://localhost:8000`
 
+### 8. Frontend (Opcional)
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+El frontend estará disponible en `http://localhost:3000`
+
 ## Estructura del Proyecto
 
 ```
@@ -92,6 +114,11 @@ django-geek-monde/
 │   ├── shipping/             # Envíos
 │   ├── customer/             # Clientes
 │   └── inventory/            # Inventario
+├── frontend/                  # Frontend Next.js con TypeScript
+│   ├── app/                  # Páginas y rutas
+│   ├── components/           # Componentes React
+│   ├── styles/               # Estilos CSS
+│   └── public/               # Archivos estáticos
 ├── email_auth/               # Autenticación por email
 ├── templates/                # Plantillas HTML
 ├── static/                   # Archivos estáticos
@@ -171,11 +198,26 @@ make lint
 make format
 ```
 
+## Stack Tecnológico
+
+### Backend
+- **Django** - Framework web principal
+- **Django REST Framework** - API REST
+- **PostgreSQL** - Base de datos
+- **Redis** - Caché y cola de tareas
+- **Django CMS** - Gestor de contenidos
+
+### Frontend
+- **Next.js** - Framework React
+- **TypeScript** - Lenguaje de tipado
+- **CSS** - Estilos personalizados
+
 ## Documentación
 
 - [Django Documentation](https://docs.djangoproject.com/)
 - [Django REST Framework](https://www.django-rest-framework.org/)
 - [Django CMS](https://docs.django-cms.org/)
+- [Next.js Documentation](https://nextjs.org/docs)
 
 ## Contribuir
 
