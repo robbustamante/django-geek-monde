@@ -1,0 +1,15 @@
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from . import views
+
+app_name = 'payment'
+
+router = DefaultRouter()
+router.register(r'stripe', views.StripePaymentViewSet, basename='stripe-payment')
+router.register(r'mercadopago', views.MercadoPagoViewSet, basename='mercadopago-payment')
+router.register(r'', views.PaymentViewSet, basename='payment')
+
+urlpatterns = [
+    path('', include(router.urls)),
+    path('methods/', views.PaymentMethodListView.as_view(), name='payment-methods'),
+]
