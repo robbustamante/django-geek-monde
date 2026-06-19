@@ -375,3 +375,14 @@ CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1:3000',
     'http://192.168.56.1:3000',
 ]
+
+JAZZMIN_SETTINGS = {
+    # Hacer que los menús laterales sean colapsables (desplegables)
+    "navigation_expanded": False,
+}
+
+JAZZMIN_UI_TWEAKS = {
+    # Un estilo más limpio para los menús desplegables
+    "sidebar_nav_child_indent": True,
+    "sidebar_nav_compact_style": False,
+}
