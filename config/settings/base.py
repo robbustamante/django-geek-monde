@@ -68,7 +68,8 @@ LOCAL_APPS = [
     'apps.shipping',
     'apps.customer',
     'apps.inventory',
-    'apps.notifications'
+    'apps.notifications',
+    'apps.invoicing',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -159,7 +160,7 @@ LANGUAGES = [
     ('pt', _('Portuguese')),
 ]
 LOCALE_PATHS = [BASE_DIR / 'locale']
-TIME_ZONE = 'America/Argentina/Buenos_Aires'
+TIME_ZONE = 'America/Asuncion'
 USE_I18N = True
 USE_TZ = True
 
@@ -304,7 +305,7 @@ FSM_ADMIN_ACTIONS_PERMISSION = 'change'
 
 # Shop-specific settings
 SHOP_APP_LABEL = 'geek_monde'
-DEFAULT_CURRENCY = 'ARS'
+DEFAULT_CURRENCY = 'PYG'
 
 SHOP_CART_MODIFIERS = [
     'apps.cart.modifiers.DefaultCartModifier',
@@ -331,6 +332,21 @@ SILENCED_SYSTEM_CHECKS = ['auth.W004']
 STRIPE_PUBLIC_KEY = env('STRIPE_PUBLIC_KEY', default='')
 STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY', default='')
 STRIPE_WEBHOOK_SECRET = env('STRIPE_WEBHOOK_SECRET', default='')
+
+# SIFEN - Facturación Electrónica Paraguay (DNIT)
+SIFEN_TIMBRADO = env('SIFEN_TIMBRADO', default='12345678')
+SIFEN_ESTABLECIMIENTO = env('SIFEN_ESTABLECIMIENTO', default='001')
+SIFEN_PUNTO_EXPEDICION = env('SIFEN_PUNTO_EXPEDICION', default='001')
+SIFEN_RUC_EMISOR = env('SIFEN_RUC_EMISOR', default='80012345-1')
+SIFEN_RAZON_SOCIAL = env('SIFEN_RAZON_SOCIAL', default='Geek Monde S.A.')
+SIFEN_NOMBRE_FANTASIA = env('SIFEN_NOMBRE_FANTASIA', default='Geek Monde')
+SIFEN_DIRECCION = env('SIFEN_DIRECCION', default='Av. España 1234, Asunción, Paraguay')
+SIFEN_TELEFONO = env('SIFEN_TELEFONO', default='+595 21 000000')
+SIFEN_EMAIL = env('SIFEN_EMAIL', default='facturacion@geek-monde.com.py')
+SIFEN_ACTIVIDAD = env('SIFEN_ACTIVIDAD', default='Comercio de indumentaria y artículos geek')
+SIFEN_TIPO_CONTRIBUYENTE = env('SIFEN_TIPO_CONTRIBUYENTE', default='2')  # 1=Fisica, 2=Juridica
+# URL de consulta KuDE (simulada para ejemplo)
+SIFEN_EKUATIA_URL = 'https://ekuatia.set.gov.py/consultas/qr'
 
 # MercadoPago Configuration
 MERCADOPAGO_ACCESS_TOKEN = env('MERCADOPAGO_ACCESS_TOKEN', default='')

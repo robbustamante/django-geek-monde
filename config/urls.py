@@ -37,6 +37,8 @@ urlpatterns = [
     # Notifications
     path('api/v1/notifications/', include('apps.notifications.urls')),
 
+    # Electronic Invoicing (SIFEN Paraguay)
+    path('api/v1/', include('apps.invoicing.urls')),
 ]
 
 # Serve media and static files in development
