@@ -342,7 +342,9 @@
     }
 
     /* ─── Status watermark ─────────────────────────────────────────────── */
-    {% if invoice.status == 'cancelled' %}
+  </style>
+  {% if invoice.status == 'cancelled' %}
+  <style>
     .watermark {
       position: fixed;
       top: 40%;
@@ -354,8 +356,8 @@
       z-index: 0;
       pointer-events: none;
     }
-    {% endif %}
   </style>
+  {% endif %}
 </head>
 <body>
 
