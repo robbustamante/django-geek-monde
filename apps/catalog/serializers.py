@@ -59,7 +59,11 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = (
             'id', 'name', 'slug', 'sku', 'description', 'price', 'image',
-            'category', 'category_id', 'is_active', 'stock', 'variants', 
+            'category', 'category_id', 'is_active',
+            # Geek-specific fields
+            'clothing_type', 'geek_category', 'franchise', 'character_name',
+            'size', 'color', 'material', 'gender_fit',
+            'stock', 'variants',
             'average_rating', 'review_count', 'created_at', 'updated_at'
         )
         read_only_fields = ('created_at', 'updated_at', 'slug')
