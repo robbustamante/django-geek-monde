@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <title>KuDE - Factura Electrónica {{ invoice.numero_display }}</title>
+  <style>
+    /* ─── Reset & Base ─────────────────────────────────────────────────── */
+    @page {
+      size: A4 portrait;
+      margin: 10mm 12mm 10mm 12mm;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 8.5pt;
+      color: #1a1a2e;
+      line-height: 1.35;
+    }
+
+    /* ─── Header / Cabecera ────────────────────────────────────────────── */
+    .header {
+      display: table;
+      width: 100%;
+      border: 2px solid #003087;
+      border-radius: 4px;
+      margin-bottom: 4px;
+    }
+    .header-left {
+      display: table-cell;
+      width: 60%;
+      padding: 6px 8px;
+      vertical-align: middle;
+      border-right: 1px solid #003087;
+    }
+    .header-right {
+      display: table-cell;
+      width: 40%;
+      padding: 6px 8px;
+      vertical-align: middle;
+      text-align: center;
+    }
+    .company-name {
+      font-size: 13pt;
+      font-weight: bold;
+      color: #003087;
+      letter-spacing: 0.5px;
+    }
+    .company-fantasy {
+      font-size: 9pt;
+      color: #555;
+      margin-bottom: 2px;
+    }
+    .company-detail {
+      font-size: 7.5pt;
+      color: #333;
+      margin-top: 1px;
+    }
+    .doc-type-box {
+      border: 2px solid #003087;
+      border-radius: 4px;
+      padding: 4px 6px;
+      margin-bottom: 4px;
+    }
+    .doc-type-title {
+      font-size: 11pt;
+      font-weight: bold;
+      color: #003087;
+      text-align: center;
+    }
+    .doc-type-sub {
+      font-size: 7.5pt;
+      color: #555;
+      text-align: center;
+    }
+    .doc-number {
+      font-size: 10pt;
+      font-weight: bold;
+      color: #c0392b;
+      text-align: center;
+      margin-top: 4px;
+    }
+    .timbrado-box {
+      font-size: 7.5pt;
+      color: #333;
+      text-align: center;
+      margin-top: 2px;
+    }
+
+    /* ─── DNIT Notice ──────────────────────────────────────────────────── */
+    .dnit-notice {
+      background: #f0f4ff;
+      border: 1px solid #003087;
+      border-radius: 3px;
+      padding: 3px 6px;
+      font-size: 7pt;
+      color: #003087;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    /* ─── Section tables ───────────────────────────────────────────────── */
+    .section-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 4px;
+    }
+    .section-table td {
+      padding: 2px 5px;
+      font-size: 8pt;
+      vertical-align: top;
+    }
+    .section-table .label {
+      font-weight: bold;
+      color: #003087;
+      white-space: nowrap;
+      width: 1%;
+    }
+    .section-table .value {
+      color: #1a1a2e;
+    }
+
+    /* ─── Section header ───────────────────────────────────────────────── */
+    .section-header {
+      background: #003087;
+      color: white;
+      font-size: 8pt;
+      font-weight: bold;
+      padding: 2px 6px;
+      margin-bottom: 2px;
+      border-radius: 2px;
+    }
+
+    /* ─── Info boxes: emisor / receptor (2 columns) ────────────────────── */
+    .two-col {
+      display: table;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 4px;
+    }
+    .two-col-left, .two-col-right {
+      display: table-cell;
+      width: 50%;
+      vertical-align: top;
+    }
+    .two-col-left {
+      padding-right: 3px;
+    }
+    .two-col-right {
+      padding-left: 3px;
+    }
+    .info-box {
+      border: 1px solid #c0cce0;
+      border-radius: 3px;
+      padding: 4px 6px;
+    }
+    .info-box-header {
+      font-size: 7pt;
+      font-weight: bold;
+      color: #003087;
+      border-bottom: 1px solid #c0cce0;
+      padding-bottom: 2px;
+      margin-bottom: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .info-row {
+      font-size: 7.5pt;
+      margin-bottom: 1px;
+      color: #1a1a2e;
+    }
+    .info-row .lbl {
+      font-weight: bold;
+      color: #003087;
+    }
+
+    /* ─── Items table ──────────────────────────────────────────────────── */
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 4px;
+    }
+    .items-table thead tr {
+      background: #003087;
+      color: white;
+    }
+    .items-table thead th {
+      font-size: 7.5pt;
+      font-weight: bold;
+      padding: 3px 5px;
+      text-align: center;
+      border: 1px solid #002060;
+    }
+    .items-table tbody tr:nth-child(even) {
+      background: #f4f7ff;
+    }
+    .items-table tbody tr:nth-child(odd) {
+      background: #ffffff;
+    }
+    .items-table tbody td {
+      font-size: 7.5pt;
+      padding: 2px 5px;
+      border: 1px solid #c0cce0;
+      vertical-align: middle;
+    }
+    .items-table tfoot td {
+      font-size: 7.5pt;
+      padding: 2px 5px;
+      border: 1px solid #c0cce0;
+    }
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
+    .text-left { text-align: left; }
+
+    /* ─── Totals block ─────────────────────────────────────────────────── */
+    .totals-wrap {
+      display: table;
+      width: 100%;
+      margin-bottom: 4px;
+    }
+    .totals-left {
+      display: table-cell;
+      width: 55%;
+      vertical-align: top;
+      padding-right: 5px;
+    }
+    .totals-right {
+      display: table-cell;
+      width: 45%;
+      vertical-align: top;
+    }
+    .totals-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #c0cce0;
+      border-radius: 3px;
+    }
+    .totals-table tr td {
+      padding: 3px 7px;
+      font-size: 8pt;
+      border-bottom: 1px solid #e8ecf4;
+    }
+    .totals-table tr:last-child td {
+      border-bottom: none;
+    }
+    .totals-table .total-label {
+      color: #555;
+    }
+    .totals-table .total-value {
+      text-align: right;
+      font-weight: bold;
+      color: #1a1a2e;
+    }
+    .totals-table .grand-total-row {
+      background: #003087;
+    }
+    .totals-table .grand-total-row td {
+      color: white;
+      font-size: 9.5pt;
+      font-weight: bold;
+      padding: 4px 7px;
+    }
+    .currency-symbol {
+      font-size: 7pt;
+      vertical-align: super;
+    }
+
+    /* ─── Payment method ───────────────────────────────────────────────── */
+    .payment-box {
+      border: 1px solid #c0cce0;
+      border-radius: 3px;
+      padding: 4px 6px;
+      font-size: 7.5pt;
+    }
+    .payment-box .lbl {
+      font-weight: bold;
+      color: #003087;
+    }
+
+    /* ─── CDC / QR footer ──────────────────────────────────────────────── */
+    .cdc-section {
+      border: 1.5px solid #003087;
+      border-radius: 4px;
+      padding: 5px 8px;
+      margin-bottom: 4px;
+    }
+    .cdc-label {
+      font-size: 7pt;
+      font-weight: bold;
+      color: #003087;
+      margin-bottom: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .cdc-value {
+      font-size: 9pt;
+      font-weight: bold;
+      font-family: "Courier New", monospace;
+      color: #1a1a2e;
+      letter-spacing: 1px;
+      word-break: break-all;
+    }
+
+    .qr-wrap {
+      display: table;
+      width: 100%;
+    }
+    .qr-left {
+      display: table-cell;
+      width: 70%;
+      vertical-align: middle;
+      padding-right: 8px;
+    }
+    .qr-right {
+      display: table-cell;
+      width: 30%;
+      vertical-align: middle;
+      text-align: center;
+    }
+    .qr-image {
+      width: 72px;
+      height: 72px;
+    }
+    .qr-caption {
+      font-size: 6.5pt;
+      color: #555;
+      margin-top: 2px;
+    }
+    .ekuatia-url {
+      font-size: 7pt;
+      color: #003087;
+      word-break: break-all;
+    }
+
+    /* ─── Footer legal ─────────────────────────────────────────────────── */
+    .legal-footer {
+      border-top: 1px dashed #c0cce0;
+      padding-top: 3px;
+      margin-top: 3px;
+      font-size: 6.5pt;
+      color: #777;
+      text-align: center;
+    }
+
+    /* ─── Status watermark ─────────────────────────────────────────────── */
+    {% if invoice.status == 'cancelled' %}
+    .watermark {
+      position: fixed;
+      top: 40%;
+      left: 10%;
+      font-size: 72pt;
+      font-weight: bold;
+      color: rgba(192, 57, 43, 0.12);
+      transform: rotate(-35deg);
+      z-index: 0;
+      pointer-events: none;
+    }
+    {% endif %}
+  </style>
+</head>
+<body>
+
+{% if invoice.status == 'cancelled' %}
+<div class="watermark">ANULADA</div>
+{% endif %}
+
+<!-- ═══════════════════════════════════════════════════
+     CABECERA
+══════════════════════════════════════════════════════ -->
+<div class="header">
+  <div class="header-left">
+    <div class="company-name">{{ emisor.razon_social }}</div>
+    {% if emisor.nombre_fantasia != emisor.razon_social %}
+    <div class="company-fantasy">{{ emisor.nombre_fantasia }}</div>
+    {% endif %}
+    <div class="company-detail"><strong>RUC:</strong> {{ emisor.ruc }}</div>
+    <div class="company-detail">{{ emisor.direccion }}</div>
+    {% if emisor.telefono %}
+    <div class="company-detail"><strong>Tel:</strong> {{ emisor.telefono }}</div>
+    {% endif %}
+    {% if emisor.email %}
+    <div class="company-detail"><strong>Email:</strong> {{ emisor.email }}</div>
+    {% endif %}
+    <div class="company-detail"><strong>Actividad:</strong> {{ emisor.actividad }}</div>
+  </div>
+  <div class="header-right">
+    <div class="doc-type-box">
+      <div class="doc-type-title">FACTURA ELECTRÓNICA</div>
+      <div class="doc-type-sub">Documento Tributario Electrónico</div>
+      <div class="doc-type-sub">Tipo DE: {{ invoice.tipo_documento }}</div>
+    </div>
+    <div class="doc-number">N° {{ invoice.numero_display }}</div>
+    <div class="timbrado-box">
+      <strong>Timbrado N°:</strong> {{ invoice.timbrado }}
+    </div>
+    {% if invoice.timbrado_fecha_inicio %}
+    <div class="timbrado-box">
+      <strong>Vigente desde:</strong> {{ invoice.timbrado_fecha_inicio|date:"d/m/Y" }}
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- DNIT Notice -->
+<div class="dnit-notice">
+  ⚠️ Este documento es la representación gráfica (KuDE) del Documento Tributario Electrónico.
+  El documento con plena validez legal es el archivo XML firmado y aprobado por el SIFEN (DNIT Paraguay).
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     EMISOR / RECEPTOR
+══════════════════════════════════════════════════════ -->
+<div class="two-col">
+  <!-- Emisor -->
+  <div class="two-col-left">
+    <div class="info-box">
+      <div class="info-box-header">📤 Datos del Emisor</div>
+      <div class="info-row"><span class="lbl">Razón Social:</span> {{ emisor.razon_social }}</div>
+      <div class="info-row"><span class="lbl">RUC:</span> {{ emisor.ruc }}</div>
+      <div class="info-row"><span class="lbl">Dirección:</span> {{ emisor.direccion }}</div>
+      <div class="info-row">
+        <span class="lbl">Tipo Contribuyente:</span>
+        {% if emisor.tipo_contribuyente == '1' %}Persona Física{% else %}Persona Jurídica{% endif %}
+      </div>
+    </div>
+  </div>
+  <!-- Receptor -->
+  <div class="two-col-right">
+    <div class="info-box">
+      <div class="info-box-header">📥 Datos del Receptor</div>
+      <div class="info-row"><span class="lbl">Nombre / Razón Social:</span> {{ invoice.receptor_nombre }}</div>
+      <div class="info-row">
+        <span class="lbl">
+          {% if invoice.receptor_tipo_doc == '1' %}RUC:
+          {% elif invoice.receptor_tipo_doc == '2' %}C.I.:
+          {% elif invoice.receptor_tipo_doc == '3' %}Pasaporte:
+          {% else %}Documento:{% endif %}
+        </span>
+        {% if invoice.receptor_ruc %}{{ invoice.receptor_ruc }}{% else %}Sin Nombre / Innominado{% endif %}
+      </div>
+      {% if invoice.receptor_direccion %}
+      <div class="info-row"><span class="lbl">Dirección:</span> {{ invoice.receptor_direccion }}</div>
+      {% endif %}
+      {% if invoice.receptor_email %}
+      <div class="info-row"><span class="lbl">Email:</span> {{ invoice.receptor_email }}</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     DATOS DE LA OPERACIÓN
+══════════════════════════════════════════════════════ -->
+<table class="section-table" style="border:1px solid #c0cce0; border-radius:3px; margin-bottom:4px;">
+  <tr>
+    <td class="label" style="width:20%">Fecha y Hora Emisión:</td>
+    <td class="value">{{ invoice.issued_at|date:"d/m/Y H:i:s" }}</td>
+    <td class="label" style="width:20%">Condición Venta:</td>
+    <td class="value">{{ invoice.get_condicion_venta_display }}</td>
+    <td class="label" style="width:15%">Moneda:</td>
+    <td class="value">{{ invoice.moneda }} (Guaraníes)</td>
+  </tr>
+  <tr>
+    <td class="label">Pedido N°:</td>
+    <td class="value">{{ invoice.order.number }}</td>
+    <td class="label">Estado:</td>
+    <td class="value">
+      {% if invoice.status == 'issued' %}<strong style="color:#198754">EMITIDA</strong>
+      {% elif invoice.status == 'cancelled' %}<strong style="color:#dc3545">ANULADA</strong>
+      {% else %}<strong style="color:#6c757d">BORRADOR</strong>
+      {% endif %}
+    </td>
+    <td class="label">Establecimiento:</td>
+    <td class="value">{{ invoice.establecimiento }} - {{ invoice.punto_expedicion }}</td>
+  </tr>
+</table>
+
+<!-- ═══════════════════════════════════════════════════
+     DETALLE DE ÍTEMS
+══════════════════════════════════════════════════════ -->
+<div class="section-header">DETALLE DE BIENES Y/O SERVICIOS</div>
+<table class="items-table">
+  <thead>
+    <tr>
+      <th class="text-center" style="width:4%">N°</th>
+      <th class="text-left" style="width:40%">Descripción</th>
+      <th class="text-center" style="width:8%">Cant.</th>
+      <th class="text-right" style="width:13%">Precio Unit. (Gs.)</th>
+      <th class="text-center" style="width:8%">IVA</th>
+      <th class="text-right" style="width:13%">IVA (Gs.)</th>
+      <th class="text-right" style="width:14%">Subtotal (Gs.)</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in items %}
+    <tr>
+      <td class="text-center">{{ forloop.counter }}</td>
+      <td class="text-left">{{ item.descripcion }}</td>
+      <td class="text-center">{{ item.cantidad }}</td>
+      <td class="text-right">{{ item.precio_unitario|floatformat:0 }}</td>
+      <td class="text-center">
+        {% if item.tasa_iva == '0' %}Exento{% else %}{{ item.tasa_iva }}%{% endif %}
+      </td>
+      <td class="text-right">{{ item.iva_item|floatformat:0 }}</td>
+      <td class="text-right"><strong>{{ item.subtotal_item|floatformat:0 }}</strong></td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="7" class="text-center" style="color:#999; padding:8px;">
+        Sin ítems registrados
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- ═══════════════════════════════════════════════════
+     TOTALES + FORMA DE PAGO
+══════════════════════════════════════════════════════ -->
+<div class="totals-wrap">
+  <!-- Liquidación IVA (izq) -->
+  <div class="totals-left">
+    <div class="section-header" style="margin-bottom:3px;">LIQUIDACIÓN DEL IVA</div>
+    <table class="totals-table">
+      <tr>
+        <td class="total-label">Base gravada 10%</td>
+        <td class="total-value">₲ {{ invoice.subtotal_gravado10|floatformat:0 }}</td>
+      </tr>
+      <tr>
+        <td class="total-label">IVA 10%</td>
+        <td class="total-value">₲ {{ invoice.total_iva10|floatformat:0 }}</td>
+      </tr>
+      <tr>
+        <td class="total-label">Base gravada 5%</td>
+        <td class="total-value">₲ {{ invoice.subtotal_gravado5|floatformat:0 }}</td>
+      </tr>
+      <tr>
+        <td class="total-label">IVA 5%</td>
+        <td class="total-value">₲ {{ invoice.total_iva5|floatformat:0 }}</td>
+      </tr>
+      <tr>
+        <td class="total-label">Exento</td>
+        <td class="total-value">₲ {{ invoice.subtotal_exento|floatformat:0 }}</td>
+      </tr>
+      <tr>
+        <td class="total-label"><strong>Total IVA</strong></td>
+        <td class="total-value">₲ {{ invoice.total_iva|floatformat:0 }}</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Total general (der) -->
+  <div class="totals-right">
+    <div class="section-header" style="margin-bottom:3px;">TOTAL A PAGAR</div>
+    <table class="totals-table">
+      <tr>
+        <td class="total-label">Subtotal (sin IVA)</td>
+        <td class="total-value">
+          ₲ {{ invoice.subtotal_gravado10|add:invoice.subtotal_gravado5|add:invoice.subtotal_exento|floatformat:0 }}
+        </td>
+      </tr>
+      <tr>
+        <td class="total-label">Total IVA</td>
+        <td class="total-value">₲ {{ invoice.total_iva|floatformat:0 }}</td>
+      </tr>
+      <tr class="grand-total-row">
+        <td>TOTAL GENERAL</td>
+        <td style="text-align:right;">₲ {{ invoice.total_general|floatformat:0 }}</td>
+      </tr>
+    </table>
+    <div style="margin-top:4px;" class="payment-box">
+      <div class="lbl">Forma de Pago:</div>
+      <div>{{ invoice.get_condicion_venta_display }}
+        {% if invoice.order.payment %}
+          — {{ invoice.order.payment.get_method_display }}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     CDC + QR CODE
+══════════════════════════════════════════════════════ -->
+<div class="cdc-section">
+  <div class="qr-wrap">
+    <div class="qr-left">
+      <div class="cdc-label">Código de Control (CDC) — 44 dígitos</div>
+      <div class="cdc-value">{{ invoice.cdc_display }}</div>
+      <div style="margin-top:5px;">
+        <div class="cdc-label">Consulte este documento en:</div>
+        <div class="ekuatia-url">{{ invoice.qr_url }}</div>
+      </div>
+      <div style="margin-top:4px; font-size:7pt; color:#555;">
+        Este documento puede ser verificado escaneando el código QR o ingresando el CDC
+        en el portal oficial de la DNIT: <strong>ekuatia.set.gov.py</strong>
+      </div>
+    </div>
+    <div class="qr-right">
+      {% if qr_base64 %}
+      <img class="qr-image" src="data:image/png;base64,{{ qr_base64 }}" alt="QR e-Kuatia"/>
+      <div class="qr-caption">Escanear para verificar<br/>en e-Kuatia (DNIT)</div>
+      {% else %}
+      <div style="width:72px;height:72px;border:1px dashed #999;display:table-cell;vertical-align:middle;text-align:center;font-size:7pt;color:#999;">
+        QR<br/>no disponible
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     FOOTER LEGAL
+══════════════════════════════════════════════════════ -->
+<div class="legal-footer">
+  <strong>{{ emisor.razon_social }}</strong> | RUC: {{ emisor.ruc }} | Timbrado: {{ invoice.timbrado }}<br/>
+  KuDE generado por sistema de facturación electrónica compatible con SIFEN DNIT Paraguay.<br/>
+  Este documento no tiene valor fiscal sin el XML firmado digitalmente y aprobado por el SIFEN.
+  Versión Manual Técnico: v150
+</div>
+
+</body>
+</html>
