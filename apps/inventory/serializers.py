@@ -3,7 +3,7 @@ from .models import StockLevel, StockMovement
 
 
 class StockLevelSerializer(serializers.ModelSerializer):
-    available = serializers.ReadOnlyField()
+    available = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = StockLevel

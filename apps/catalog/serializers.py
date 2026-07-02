@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.db.models import Avg
 from .models import Category, Product, ProductVariant
 from apps.inventory.models import StockLevel
-
+from drf_spectacular.utils import extend_schema_field
 
 class CategorySerializer(serializers.ModelSerializer):
     """Serializer para categorías de productos."""
@@ -13,6 +13,7 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'slug', 'description', 'parent', 'is_active', 'children', 'created_at', 'updated_at')
         read_only_fields = ('created_at', 'updated_at')
     
+    @extend_schema_field(serializers.ListField(child=serializers.DictField()))
     def get_children(self, obj):
         """Obtiene subcategorías si existen."""
         children = obj.children.filter(is_active=True)
@@ -68,6 +69,7 @@ class ProductSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('created_at', 'updated_at', 'slug')
     
+    @extend_schema_field(serializers.DictField())
     def get_stock(self, obj):
         """Obtiene info de stock si existe."""
         try:
@@ -82,11 +84,13 @@ class ProductSerializer(serializers.ModelSerializer):
             pass
         return {'quantity': 0, 'reserved': 0, 'available': 0}
 
+    @extend_schema_field(serializers.FloatField())
     def get_average_rating(self, obj):
         """Obtiene el promedio de calificaciones (desde apps.reviews)."""
         avg = obj.reviews.aggregate(Avg('rating'))['rating__avg']
         return round(avg, 1) if avg else None
 
+    @extend_schema_field(serializers.IntegerField())
     def get_review_count(self, obj):
         """Obtiene la cantidad total de reseñas."""
         return obj.reviews.count()

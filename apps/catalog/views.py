@@ -29,7 +29,7 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
 
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet para gestionar productos del catálogo."""
-    queryset = Product.objects.filter(is_active=True)
+    queryset = Product.objects.filter(is_active=True).select_related('category').prefetch_related('variants')
     serializer_class = ProductSerializer
     permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
@@ -69,7 +69,7 @@ class CategoryDetailView(generics.RetrieveAPIView):
 
 class ProductListView(generics.ListAPIView):
     """Listar todos los productos."""
-    queryset = Product.objects.filter(is_active=True)
+    queryset = Product.objects.filter(is_active=True).select_related('category').prefetch_related('variants')
     serializer_class = ProductSerializer
     permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
@@ -80,7 +80,7 @@ class ProductListView(generics.ListAPIView):
 
 class ProductDetailView(generics.RetrieveAPIView):
     """Obtener detalle de un producto."""
-    queryset = Product.objects.filter(is_active=True)
+    queryset = Product.objects.filter(is_active=True).select_related('category').prefetch_related('variants')
     serializer_class = ProductSerializer
     permission_classes = [AllowAny]
     lookup_field = 'slug'

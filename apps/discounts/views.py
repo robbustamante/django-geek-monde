@@ -12,6 +12,7 @@ class CouponViewSet(viewsets.ViewSet):
     """
     ViewSet for handling coupon logic.
     """
+    serializer_class = CouponSerializer
     permission_classes = [IsAuthenticated]
 
     @action(detail=False, methods=['post'], url_path='validate-coupon')

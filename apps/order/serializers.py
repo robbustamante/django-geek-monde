@@ -3,6 +3,7 @@ from .models import Order, OrderItem
 from apps.catalog.models import Product
 from apps.catalog.serializers import ProductSerializer
 from apps.payment.serializers import PaymentSerializer
+from drf_spectacular.utils import extend_schema_field
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -20,6 +21,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
         fields = ('id', 'product', 'product_id', 'quantity', 'unit_price', 'subtotal', 'created_at')
         read_only_fields = ('unit_price', 'created_at')
     
+    @extend_schema_field(serializers.FloatField())
     def get_subtotal(self, obj):
         """Calcula el subtotal del item."""
         return float(obj.unit_price * obj.quantity)
@@ -42,6 +44,7 @@ class OrderSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('user', 'number', 'created_at', 'updated_at')
     
+    @extend_schema_field(PaymentSerializer())
     def get_payment(self, obj):
         """Obtiene info de pago si existe."""
         try:
@@ -51,6 +54,7 @@ class OrderSerializer(serializers.ModelSerializer):
             pass
         return None
 
+    @extend_schema_field(serializers.DictField())
     def get_shipping_address(self, obj):
         """Obtiene info de la dirección de envío si existe."""
         if obj.shipping_address:
