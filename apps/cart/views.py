@@ -35,6 +35,7 @@ class CartViewSet(viewsets.ViewSet):
     ViewSet para el carrito principal.
     Mapeado típicamente a /api/v1/cart/
     """
+    serializer_class = CartSerializer
     permission_classes = [AllowAny]
     
     def list(self, request):
@@ -122,6 +123,7 @@ class CartItemViewSet(viewsets.ModelViewSet):
     ViewSet para los items del carrito.
     Mapeado a /api/v1/cart/items/
     """
+    queryset = CartItem.objects.none()
     serializer_class = CartItemSerializer
     permission_classes = [AllowAny]
     

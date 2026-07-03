@@ -9,6 +9,7 @@ from .serializers import NotificationSerializer
 
 class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet para gestionar notificaciones del usuario."""
+    queryset = Notification.objects.none()
     serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]
 

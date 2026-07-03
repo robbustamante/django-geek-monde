@@ -10,6 +10,7 @@ from apps.cart.models import Cart
 
 class OrderViewSet(viewsets.ModelViewSet):
     """ViewSet para gestionar órdenes del usuario."""
+    queryset = Order.objects.none()
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
     lookup_field = 'number'

@@ -6,6 +6,7 @@ from apps.catalog.models import Product
 from apps.catalog.serializers import ProductSerializer
 from apps.discounts.serializers import CouponSerializer
 from apps.discounts.services import CouponService
+from drf_spectacular.utils import extend_schema_field
 
 class CartItemSerializer(serializers.ModelSerializer):
     """Serializer para items del carrito."""
@@ -22,6 +23,7 @@ class CartItemSerializer(serializers.ModelSerializer):
         fields = ('id', 'product', 'product_id', 'quantity', 'subtotal', 'created_at')
         read_only_fields = ('created_at',)
     
+    @extend_schema_field(serializers.FloatField())
     def get_subtotal(self, obj):
         """Calcula el subtotal del item."""
         return float(obj.product.price * obj.quantity)
@@ -41,10 +43,12 @@ class CartSerializer(serializers.ModelSerializer):
         fields = ('id', 'items', 'items_count', 'subtotal', 'applied_coupon', 'discount_amount', 'total', 'created_at', 'updated_at')
         read_only_fields = ('created_at', 'updated_at')
     
+    @extend_schema_field(serializers.DecimalField(max_digits=10, decimal_places=2))
     def get_subtotal(self, obj):
         """Calcula el subtotal sin descuento."""
         return sum((item.product.price * item.quantity for item in obj.items.all()), Decimal('0.0'))
 
+    @extend_schema_field(serializers.FloatField())
     def get_discount_amount(self, obj):
         """Calcula el monto del descuento si hay un cupón."""
         subtotal = self.get_subtotal(obj)
@@ -57,12 +61,14 @@ class CartSerializer(serializers.ModelSerializer):
                 return float(CouponService.calculate_discount(coupon, subtotal))
         return 0.0
 
+    @extend_schema_field(serializers.FloatField())
     def get_total(self, obj):
         """Calcula el total final (subtotal - descuento)."""
         subtotal = float(self.get_subtotal(obj))
         discount = self.get_discount_amount(obj)
         return max(0.0, subtotal - discount)
     
+    @extend_schema_field(serializers.IntegerField())
     def get_items_count(self, obj):
         """Cuenta items en el carrito."""
         return obj.items.aggregate(

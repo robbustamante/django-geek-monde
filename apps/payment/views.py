@@ -3,13 +3,19 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
+from rest_framework import serializers
 from .models import Payment
 from .serializers import PaymentSerializer, PaymentCreateSerializer
 from apps.order.models import Order
 
+class DummyResponseSerializer(serializers.Serializer):
+    """Serializador vacío para evitar warnings de OpenAPI."""
+    pass
+
 
 class PaymentViewSet(viewsets.ViewSet):
     """ViewSet para gestionar pagos."""
+    serializer_class = PaymentSerializer
     permission_classes = [IsAuthenticated]
     
     @action(detail=False, methods=['get'])
@@ -53,6 +59,7 @@ class PaymentViewSet(viewsets.ViewSet):
 
 class StripePaymentViewSet(viewsets.ViewSet):
     """ViewSet para la integración con Stripe."""
+    serializer_class = DummyResponseSerializer
     
     def get_permissions(self):
         # El webhook de Stripe no usa autenticación porque es un POST desde Stripe
@@ -153,6 +160,7 @@ class StripePaymentViewSet(viewsets.ViewSet):
 
 class MercadoPagoViewSet(viewsets.ViewSet):
     """ViewSet para la integración con MercadoPago."""
+    serializer_class = DummyResponseSerializer
     
     def get_permissions(self):
         # Webhook no requiere autenticación
@@ -252,6 +260,7 @@ class MercadoPagoViewSet(viewsets.ViewSet):
 
 class PaymentMethodListView(generics.GenericAPIView):
     """Lista métodos de pago disponibles."""
+    serializer_class = DummyResponseSerializer
     permission_classes = [AllowAny]
     
     def get(self, request):

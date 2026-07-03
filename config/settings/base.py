@@ -76,17 +76,20 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'django.middleware.cache.UpdateCacheMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
     'config.settings.base.ExceptionLoggingMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.gzip.GZipMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -234,10 +237,9 @@ AUTHENTICATION_BACKENDS = [
 AUTH_USER_MODEL = 'email_auth.User'
 
 # Allauth settings
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 ACCOUNT_UNIQUE_EMAIL = True
-ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_USER_MODEL_USERNAME_FIELD = 'username'
 
 # Cache
@@ -247,6 +249,8 @@ CACHES = {
         default='locmemcache://'
     )
 }
+CACHE_MIDDLEWARE_SECONDS = 600
+CACHE_MIDDLEWARE_KEY_PREFIX = 'geek_monde'
 
 # Sessions
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
@@ -323,7 +327,10 @@ SHOP_ORDER_WORKFLOWS = [
 SECURE_CONTENT_SECURITY_POLICY = {
     'default-src': ("'self'",),
 }
-X_FRAME_OPTIONS = 'SAMEORIGIN'
+X_FRAME_OPTIONS = 'DENY'
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_HTTPONLY = True
 
 # Silent system checks
 SILENCED_SYSTEM_CHECKS = ['auth.W004']
