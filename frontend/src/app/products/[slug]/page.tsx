@@ -47,17 +47,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await apiFetch(`/api/v1/catalog/products/${slug}/`);
-        if (!res.ok) {
-          if (res.status === 404) throw new Error("Producto no encontrado");
-          throw new Error("Error al cargar el producto");
-        }
-        const data = await res.json();
+        const data = await apiFetch(`/api/v1/catalog/products/${slug}/`);
         setProduct(data);
         if (data.size) setSelectedSize(data.size);
         else setSelectedSize("M"); // Default temporal
       } catch (err: any) {
-        setError(err.message);
+        setError(err.status === 404 ? "Producto no encontrado" : "Error al cargar el producto");
       } finally {
         setLoading(false);
       }
@@ -69,18 +64,13 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
     if (!product) return;
     setIsAdding(true);
     try {
-      const res = await apiFetch("/api/v1/cart/items/", {
+      await apiFetch("/api/v1/cart/items/", {
         method: "POST",
-        body: JSON.stringify({
+        body: {
           product_id: product.id,
           quantity: quantity,
-        }),
+        },
       });
-
-      if (!res.ok) {
-        const errBody = await res.text();
-        throw new Error(`Error: ${errBody}`);
-      }
 
       setIsSuccess(true);
       setTimeout(() => setIsSuccess(false), 2000);

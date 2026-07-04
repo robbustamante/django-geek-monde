@@ -19,21 +19,19 @@
 
     /* ─── Header / Cabecera ────────────────────────────────────────────── */
     .header {
-      display: table;
       width: 100%;
       border: 2px solid #003087;
       border-radius: 4px;
       margin-bottom: 4px;
+      border-collapse: separate;
     }
     .header-left {
-      display: table-cell;
       width: 60%;
       padding: 6px 8px;
       vertical-align: middle;
       border-right: 1px solid #003087;
     }
     .header-right {
-      display: table-cell;
       width: 40%;
       padding: 6px 8px;
       vertical-align: middle;
@@ -113,7 +111,6 @@
       font-weight: bold;
       color: #003087;
       white-space: nowrap;
-      width: 1%;
     }
     .section-table .value {
       color: #1a1a2e;
@@ -132,13 +129,11 @@
 
     /* ─── Info boxes: emisor / receptor (2 columns) ────────────────────── */
     .two-col {
-      display: table;
       width: 100%;
       border-collapse: collapse;
       margin-bottom: 4px;
     }
     .two-col-left, .two-col-right {
-      display: table-cell;
       width: 50%;
       vertical-align: top;
     }
@@ -213,18 +208,16 @@
 
     /* ─── Totals block ─────────────────────────────────────────────────── */
     .totals-wrap {
-      display: table;
       width: 100%;
       margin-bottom: 4px;
+      border-collapse: collapse;
     }
     .totals-left {
-      display: table-cell;
       width: 55%;
       vertical-align: top;
       padding-right: 5px;
     }
     .totals-right {
-      display: table-cell;
       width: 45%;
       vertical-align: top;
     }
@@ -301,17 +294,15 @@
     }
 
     .qr-wrap {
-      display: table;
       width: 100%;
+      border-collapse: collapse;
     }
     .qr-left {
-      display: table-cell;
       width: 70%;
       vertical-align: middle;
       padding-right: 8px;
     }
     .qr-right {
-      display: table-cell;
       width: 30%;
       vertical-align: middle;
       text-align: center;
@@ -368,8 +359,9 @@
 <!-- ═══════════════════════════════════════════════════
      CABECERA
 ══════════════════════════════════════════════════════ -->
-<div class="header">
-  <div class="header-left">
+<table class="header">
+<tr>
+  <td class="header-left">
     <div class="company-name">{{ emisor.razon_social }}</div>
     {% if emisor.nombre_fantasia != emisor.razon_social %}
     <div class="company-fantasy">{{ emisor.nombre_fantasia }}</div>
@@ -383,8 +375,8 @@
     <div class="company-detail"><strong>Email:</strong> {{ emisor.email }}</div>
     {% endif %}
     <div class="company-detail"><strong>Actividad:</strong> {{ emisor.actividad }}</div>
-  </div>
-  <div class="header-right">
+  </td>
+  <td class="header-right">
     <div class="doc-type-box">
       <div class="doc-type-title">FACTURA ELECTRÓNICA</div>
       <div class="doc-type-sub">Documento Tributario Electrónico</div>
@@ -399,8 +391,9 @@
       <strong>Vigente desde:</strong> {{ invoice.timbrado_fecha_inicio|date:"d/m/Y" }}
     </div>
     {% endif %}
-  </div>
-</div>
+  </td>
+</tr>
+</table>
 
 <!-- DNIT Notice -->
 <div class="dnit-notice">
@@ -411,9 +404,10 @@
 <!-- ═══════════════════════════════════════════════════
      EMISOR / RECEPTOR
 ══════════════════════════════════════════════════════ -->
-<div class="two-col">
+<table class="two-col">
+<tr>
   <!-- Emisor -->
-  <div class="two-col-left">
+  <td class="two-col-left">
     <div class="info-box">
       <div class="info-box-header">📤 Datos del Emisor</div>
       <div class="info-row"><span class="lbl">Razón Social:</span> {{ emisor.razon_social }}</div>
@@ -424,9 +418,9 @@
         {% if emisor.tipo_contribuyente == '1' %}Persona Física{% else %}Persona Jurídica{% endif %}
       </div>
     </div>
-  </div>
+  </td>
   <!-- Receptor -->
-  <div class="two-col-right">
+  <td class="two-col-right">
     <div class="info-box">
       <div class="info-box-header">📥 Datos del Receptor</div>
       <div class="info-row"><span class="lbl">Nombre / Razón Social:</span> {{ invoice.receptor_nombre }}</div>
@@ -446,8 +440,9 @@
       <div class="info-row"><span class="lbl">Email:</span> {{ invoice.receptor_email }}</div>
       {% endif %}
     </div>
-  </div>
-</div>
+  </td>
+</tr>
+</table>
 
 <!-- ═══════════════════════════════════════════════════
      DATOS DE LA OPERACIÓN
@@ -518,9 +513,10 @@
 <!-- ═══════════════════════════════════════════════════
      TOTALES + FORMA DE PAGO
 ══════════════════════════════════════════════════════ -->
-<div class="totals-wrap">
+<table class="totals-wrap">
+<tr>
   <!-- Liquidación IVA (izq) -->
-  <div class="totals-left">
+  <td class="totals-left">
     <div class="section-header" style="margin-bottom:3px;">LIQUIDACIÓN DEL IVA</div>
     <table class="totals-table">
       <tr>
@@ -548,10 +544,10 @@
         <td class="total-value">₲ {{ invoice.total_iva|floatformat:0 }}</td>
       </tr>
     </table>
-  </div>
+  </td>
 
   <!-- Total general (der) -->
-  <div class="totals-right">
+  <td class="totals-right">
     <div class="section-header" style="margin-bottom:3px;">TOTAL A PAGAR</div>
     <table class="totals-table">
       <tr>
@@ -577,15 +573,17 @@
         {% endif %}
       </div>
     </div>
-  </div>
-</div>
+  </td>
+</tr>
+</table>
 
 <!-- ═══════════════════════════════════════════════════
      CDC + QR CODE
 ══════════════════════════════════════════════════════ -->
 <div class="cdc-section">
-  <div class="qr-wrap">
-    <div class="qr-left">
+  <table class="qr-wrap">
+  <tr>
+    <td class="qr-left">
       <div class="cdc-label">Código de Control (CDC) — 44 dígitos</div>
       <div class="cdc-value">{{ invoice.cdc_display }}</div>
       <div style="margin-top:5px;">
@@ -596,18 +594,19 @@
         Este documento puede ser verificado escaneando el código QR o ingresando el CDC
         en el portal oficial de la DNIT: <strong>ekuatia.set.gov.py</strong>
       </div>
-    </div>
-    <div class="qr-right">
+    </td>
+    <td class="qr-right">
       {% if qr_base64 %}
       <img class="qr-image" src="data:image/png;base64,{{ qr_base64 }}" alt="QR e-Kuatia"/>
       <div class="qr-caption">Escanear para verificar<br/>en e-Kuatia (DNIT)</div>
       {% else %}
-      <div style="width:72px;height:72px;border:1px dashed #999;display:table-cell;vertical-align:middle;text-align:center;font-size:7pt;color:#999;">
-        QR<br/>no disponible
+      <div style="width:72px;height:72px;border:1px dashed #999;display:block;margin:0 auto;text-align:center;font-size:7pt;color:#999;line-height:72px;">
+        QR N/A
       </div>
       {% endif %}
-    </div>
-  </div>
+    </td>
+  </tr>
+  </table>
 </div>
 
 <!-- ═══════════════════════════════════════════════════

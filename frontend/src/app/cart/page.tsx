@@ -35,9 +35,7 @@ export default function CartPage() {
 
   const fetchCart = useCallback(async () => {
     try {
-      const res = await apiFetch("/api/v1/cart/");
-      if (!res.ok) throw new Error("Error al cargar el carrito");
-      const data = await res.json();
+      const data = await apiFetch("/api/v1/cart/");
       setCart(data);
     } catch (err) {
       setError("No se pudo cargar el carrito");
@@ -58,7 +56,7 @@ export default function CartPage() {
     try {
       await apiFetch(`/api/v1/cart/items/${itemId}/`, {
         method: "PATCH",
-        body: JSON.stringify({ quantity: newQty }),
+        body: { quantity: newQty },
       });
       await fetchCart();
     } catch {

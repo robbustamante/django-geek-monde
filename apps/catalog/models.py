@@ -127,6 +127,8 @@ class Product(TimeStampedModel):
     clothing_type = models.CharField(
         max_length=50,
         choices=CLOTHING_TYPE_CHOICES,
+        blank=True,
+        default='',
         verbose_name=_('Clothing Type')
     )
 

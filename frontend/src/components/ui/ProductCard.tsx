@@ -25,19 +25,13 @@ export default function ProductCard({ product }: { product: Product }) {
   const handleAddToCart = async () => {
     setIsAdding(true);
     try {
-      const response = await apiFetch("/api/v1/cart/items/", {
+      await apiFetch("/api/v1/cart/items/", {
         method: "POST",
-        body: JSON.stringify({
+        body: {
           product_id: product.id,
           quantity: 1,
-        }),
+        },
       });
-
-      if (!response.ok) {
-        const errBody = await response.text();
-        console.error("Cart error:", response.status, errBody);
-        throw new Error(`Failed (${response.status}): ${errBody}`);
-      }
 
       setIsSuccess(true);
       setTimeout(() => setIsSuccess(false), 2000);

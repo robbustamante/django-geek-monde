@@ -30,7 +30,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             )
         
         serializer = OrderCreateSerializer(
-            data={},
+            data=request.data,
             context={'request': request}
         )
         
