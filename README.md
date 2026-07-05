@@ -1,89 +1,84 @@
 # Django Geek Monde
 
-API REST de comercio electrónico para indumentaria y artículos geek, desarrollada en Django. Implementa modelos dinámicos para variantes de productos, manejo avanzado de stock con control de concurrencia y seguridad mediante middlewares.
+API REST de comercio electrónico para indumentaria y artículos geek, desarrollada en Django. Implementa modelos dinámicos para variantes de productos, manejo avanzado de stock con control de concurrencia y seguridad mediante middlewares. Proporciona una API limpia y documentada, además de un frontend moderno en Next.js.
 
-## 📊 Composición Técnica
+## 📊 Composición técnica
 
 | Lenguaje | Porcentaje |
-|----------|-----------|
-| Python | 66.9% |
-| TypeScript | 19.8% |
-| CSS | 11.6% |
-| HTML | 1.2% |
-| Otro | 0.5% |
+|----------|-----------:|
+| Python   | 70.4% |
+| TypeScript | 13.8% |
+| CSS | 8.1% |
+| HTML | 7.3% |
+| Otro | 0.4% |
 
-## Características
+## Características principales
 
-- 🛍️ **Catálogo de Productos** - Gestión completa de productos, categorías y variantes
-- 🛒 **Carrito de Compras** - Sistema de carrito con modificadores de precios
-- 💳 **Sistema de Pagos** - Integración con múltiples métodos de pago
-- 📦 **Gestión de Órdenes** - Seguimiento completo del ciclo de vida de pedidos
-- 📍 **Gestión de Envíos** - Cálculo de costos y tracking
-- 👤 **Gestión de Clientes** - Perfiles, direcciones y preferencias
-- 📊 **Inventario** - Control de stock con manejo de concurrencia
-- 🔐 **Autenticación** - Sistema de autenticación basado en email
-- 📚 **API Documentation** - Documentación interactiva con Swagger/Redoc
-- 🌐 **CMS integrado** - Django CMS para contenido editorial
-- 🎨 **Frontend Moderno** - Interfaz desarrollada con TypeScript y CSS
+- 🛍️ Catálogo de Productos: gestión de productos, categorías y variantes dinámicas
+- 🛒 Carrito de Compras: sistema de carrito con modificadores de precios
+- 💳 Sistema de Pagos: integración con múltiples gateways (configurable)
+- 📦 Gestión de Órdenes: ciclo completo de pedidos y estados
+- 📍 Envíos: cálculos de costo y tracking
+- 👤 Gestión de Clientes: perfiles, direcciones y preferencias
+- 📊 Inventario: control de stock con manejo de concurrencia
+- 🔐 Autenticación: autenticación por email y seguridad mediante middlewares
+- 📚 Documentación API: Swagger/Redoc para explorar la API
+- 🌐 CMS integrado: Django CMS para contenido editorial
+- 🎨 Frontend moderno: Next.js + TypeScript
 
 ## Requisitos
 
 - Python 3.10+
 - Django 4.2+
 - PostgreSQL (recomendado para producción)
-- Redis (opcional, para caché)
+- Redis (opcional, para caché y colas)
 - Node.js 18+ (para frontend)
 
-## Instalación
+## Instalación rápida
 
-### 1. Clonar el repositorio
+1. Clona el repositorio
 
 ```bash
 git clone https://github.com/robbustamante/django-geek-monde.git
 cd django-geek-monde
 ```
 
-### 2. Crear entorno virtual
+2. Crea y activa un entorno virtual
 
 ```bash
 python -m venv venv
 source venv/bin/activate  # En Windows: venv\Scripts\activate
 ```
 
-### 3. Instalar dependencias
+3. Instala dependencias
 
 ```bash
 make install
 ```
 
-### 4. Configurar variables de entorno
+4. Copia y configura variables de entorno
 
 ```bash
 cp .env.example .env
-# Editar .env con tus valores
+# Edita .env con tus valores (DATABASE_URL, SECRET_KEY, etc.)
 ```
 
-### 5. Crear base de datos
+5. Migraciones y superusuario
 
 ```bash
 make migrate
-```
-
-### 6. Crear superusuario
-
-```bash
 make superuser
 ```
 
-### 7. Ejecutar servidor de desarrollo
+6. Ejecuta servidor de desarrollo
 
 ```bash
 make run
 ```
 
-El servidor estará disponible en `http://localhost:8000`
+El servidor estará disponible en `http://localhost:8000`.
 
-### 8. Frontend (Opcional)
+### Frontend (opcional)
 
 ```bash
 cd frontend
@@ -91,148 +86,106 @@ npm install
 npm run dev
 ```
 
-El frontend estará disponible en `http://localhost:3000`
+El frontend de desarrollo corre en `http://localhost:3000`.
 
-## Estructura del Proyecto
+## Estructura del proyecto (resumen)
 
 ```
 django-geek-monde/
 ├── config/                    # Configuración del proyecto
-│   ├── settings/
-│   │   ├── base.py           # Configuración base
-│   │   ├── development.py    # Configuración desarrollo
-│   │   └── production.py     # Configuración producción
-│   ├── urls.py
-│   ├── wsgi.py
-│   └── asgi.py
-├── apps/                      # Aplicaciones del proyecto
-│   ├── core/                 # Funcionalidades centrales
-│   ├── catalog/              # Gestión de productos
-│   ├── cart/                 # Carrito de compras
-│   ├── order/                # Órdenes
-│   ├── payment/              # Pagos
-│   ├── shipping/             # Envíos
-│   ├── customer/             # Clientes
-│   └── inventory/            # Inventario
+├── apps/                      # Aplicaciones (catalog, cart, order, payment, etc.)
 ├── frontend/                  # Frontend Next.js con TypeScript
-│   ├── app/                  # Páginas y rutas
-│   ├── components/           # Componentes React
-│   ├── styles/               # Estilos CSS
-│   └── public/               # Archivos estáticos
-├── email_auth/               # Autenticación por email
-├── templates/                # Plantillas HTML
-├── static/                   # Archivos estáticos
-├── media/                    # Archivos de usuario
-├── locale/                   # Traduciones
-├── tests/                    # Tests del proyecto
+├── email_auth/                # Autenticación por email
+├── templates/                 # Plantillas HTML
+├── static/                    # Archivos estáticos
+├── media/                     # Archivos de usuario
+├── locale/                    # Traducciones
+├── tests/                     # Tests del proyecto
 ├── manage.py
-├── pytest.ini
 ├── requirements.txt
 ├── .env.example
-├── Makefile
 └── README.md
 ```
 
-## API Endpoints
+## Endpoints principales (resumen)
 
 ### Autenticación
-- `POST /api/auth/login/` - Login
-- `POST /api/auth/logout/` - Logout
-- `POST /api/auth/registration/` - Registro
-- `POST /api/auth/password/reset/` - Reset contraseña
+- POST /api/auth/login/ - Login
+- POST /api/auth/logout/ - Logout
+- POST /api/auth/registration/ - Registro
+- POST /api/auth/password/reset/ - Reset contraseña
 
 ### Catálogo
-- `GET /api/v1/catalog/products/` - Listar productos
-- `GET /api/v1/catalog/products/{id}/` - Detalle de producto
-- `GET /api/v1/catalog/categories/` - Listar categorías
+- GET /api/v1/catalog/products/ - Listar productos
+- GET /api/v1/catalog/products/{id}/ - Detalle de producto
+- GET /api/v1/catalog/categories/ - Listar categorías
 
 ### Carrito
-- `GET /api/v1/cart/` - Obtener carrito actual
-- `POST /api/v1/cart/items/` - Agregar item al carrito
-- `PATCH /api/v1/cart/items/{id}/` - Actualizar cantidad
-- `DELETE /api/v1/cart/items/{id}/` - Eliminar item
+- GET /api/v1/cart/ - Obtener carrito actual
+- POST /api/v1/cart/items/ - Agregar item al carrito
+- PATCH /api/v1/cart/items/{id}/ - Actualizar cantidad
+- DELETE /api/v1/cart/items/{id}/ - Eliminar item
 
 ### Órdenes
-- `GET /api/v1/order/` - Listar órdenes del usuario
-- `POST /api/v1/order/` - Crear orden
-- `GET /api/v1/order/{id}/` - Detalle de orden
+- GET /api/v1/order/ - Listar órdenes del usuario
+- POST /api/v1/order/ - Crear orden
+- GET /api/v1/order/{id}/ - Detalle de orden
 
-### Documentación completa
-Visita `http://localhost:8000/api/docs/swagger/` para la documentación interactiva.
+Para la documentación completa interactiva visite `http://localhost:8000/api/docs/swagger/`.
 
-## Configuración de Base de Datos
+## Base de datos
 
-### SQLite (Desarrollo)
-Por defecto usa SQLite. Se crea automáticamente en `db.sqlite3`
+### SQLite (desarrollo)
+Por defecto usa SQLite y crea `db.sqlite3` automáticamente.
 
-### PostgreSQL (Producción)
+### PostgreSQL (producción)
 
-Instala PostgreSQL y actualiza `.env`:
+Configurar en `.env`:
 
 ```
 DATABASE_URL=postgresql://user:password@localhost:5432/geek_monde
 ```
 
-Luego:
+Y luego:
+
 ```bash
 make migrate
 ```
 
-## Testing
+## Tests
 
 ```bash
-# Ejecutar todos los tests
 make test
-
-# Con cobertura
 make test-cov
 ```
 
-## Linting y Formateo
+## Linting y formateo
 
 ```bash
-# Verificar lint
 make lint
-
-# Formatear código
 make format
 ```
 
-## Stack Tecnológico
+## Stack tecnológico
 
-### Backend
-- **Django** - Framework web principal
-- **Django REST Framework** - API REST
-- **PostgreSQL** - Base de datos
-- **Redis** - Caché y cola de tareas
-- **Django CMS** - Gestor de contenidos
+**Backend**: Django, Django REST Framework, PostgreSQL, Redis, Django CMS
 
-### Frontend
-- **Next.js** - Framework React
-- **TypeScript** - Lenguaje de tipado
-- **CSS** - Estilos personalizados
-
-## Documentación
-
-- [Django Documentation](https://docs.djangoproject.com/)
-- [Django REST Framework](https://www.django-rest-framework.org/)
-- [Django CMS](https://docs.django-cms.org/)
-- [Next.js Documentation](https://nextjs.org/docs)
+**Frontend**: Next.js, TypeScript, CSS
 
 ## Contribuir
 
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
+1. Fork del proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/mi-feature`)
+3. Commit de tus cambios (`git commit -m "Add feature"`)
+4. Push a tu rama (`git push origin feature/mi-feature`)
 5. Abre un Pull Request
 
 ## Licencia
 
-Este proyecto está bajo licencia MIT.
+Proyecto bajo licencia MIT.
 
 ## Contacto
 
 Robbustamante - [@robbustamante](https://github.com/robbustamante)
 
-Proyecto Link: [https://github.com/robbustamante/django-geek-monde](https://github.com/robbustamante/django-geek-monde)
+Repositorio: https://github.com/robbustamante/django-geek-monde
