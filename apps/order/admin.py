@@ -30,3 +30,23 @@ class OrderAdmin(admin.ModelAdmin):
         }),
     )
 
+    actions = ['action_generate_invoice']
+
+    @admin.action(description=_('Generar Factura para Órdenes Seleccionadas'))
+    def action_generate_invoice(self, request, queryset):
+        from apps.invoicing.services import InvoiceService
+        count = 0
+        errors = 0
+        for order in queryset:
+            if not hasattr(order, 'invoice'):
+                try:
+                    InvoiceService.issue_invoice(order)
+                    count += 1
+                except Exception as e:
+                    errors += 1
+                    self.message_user(request, f"Error en orden {order.number}: {e}", level='error')
+        
+        if count > 0:
+            self.message_user(request, f"Se generaron {count} facturas correctamente.")
+        elif errors == 0:
+            self.message_user(request, "Las órdenes seleccionadas ya tenían factura.", level='warning')

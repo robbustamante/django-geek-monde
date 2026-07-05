@@ -39,7 +39,11 @@ def order_status_changed(sender, instance, created, **kwargs):
             )
 
     if notification and instance.status in ['pending', 'shipped', 'delivered']:
-        send_notification_email.delay(notification.id)
+        try:
+            send_notification_email.delay(notification.id)
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning(f"No se pudo encolar el email: {e}")
 
 
 @receiver(post_save, sender=Payment)
@@ -58,4 +62,8 @@ def payment_completed(sender, instance, **kwargs):
             ),
             order=instance.order,
         )
-        send_notification_email.delay(notification.id)
+        try:
+            send_notification_email.delay(notification.id)
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning(f"No se pudo encolar el email: {e}")

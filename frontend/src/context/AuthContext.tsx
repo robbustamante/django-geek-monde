@@ -47,19 +47,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchUser = async (authToken: string) => {
     try {
-      const res = await apiFetch("/api/auth/user/", {
+      const data = await apiFetch("/api/auth/user/", {
         headers: { Authorization: `Token ${authToken}` },
       });
-      if (res.ok) {
-        const data = await res.json();
-        setUser(data);
-        setToken(authToken);
-      } else {
-        // Token is invalid, clear it
-        localStorage.removeItem("auth_token");
-        setToken(null);
-        setUser(null);
-      }
+      setUser(data);
+      setToken(authToken);
     } catch {
       localStorage.removeItem("auth_token");
       setToken(null);
@@ -71,22 +63,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (email: string, password: string) => {
     try {
-      const res = await apiFetch("/api/auth/login/", {
+      const data = await apiFetch("/api/auth/login/", {
         method: "POST",
-        body: JSON.stringify({ email, password }),
+        body: { email, password },
       });
 
-      if (!res.ok) {
-        const data = await res.json();
-        const errorMsg =
-          data.non_field_errors?.[0] ||
-          data.email?.[0] ||
-          data.detail ||
-          "Error al iniciar sesión";
-        return { ok: false, error: errorMsg };
-      }
-
-      const data = await res.json();
       const authToken = data.key;
       localStorage.setItem("auth_token", authToken);
       setToken(authToken);
@@ -105,7 +86,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       return { ok: true };
-    } catch {
+    } catch (err: any) {
+      if (err.data) {
+        const errorMsg =
+          err.data.non_field_errors?.[0] ||
+          err.data.email?.[0] ||
+          err.data.detail ||
+          "Error al iniciar sesión";
+        return { ok: false, error: errorMsg };
+      }
       return { ok: false, error: "Error de conexión con el servidor" };
     }
   }, []);
@@ -114,25 +103,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (email: string, password1: string, password2: string) => {
       try {
         const username = email.split('@')[0] + Math.random().toString(36).substring(2, 8);
-        const res = await apiFetch("/api/auth/registration/", {
+        await apiFetch("/api/auth/registration/", {
           method: "POST",
-          body: JSON.stringify({ username, email, password1, password2 }),
+          body: { username, email, password1, password2 },
         });
 
-        if (!res.ok) {
-          const data = await res.json();
+        return { ok: true };
+      } catch (err: any) {
+        if (err.data) {
           const errorMsg =
-            data.username?.[0] ||
-            data.email?.[0] ||
-            data.password1?.[0] ||
-            data.non_field_errors?.[0] ||
-            data.detail ||
+            err.data.username?.[0] ||
+            err.data.email?.[0] ||
+            err.data.password1?.[0] ||
+            err.data.non_field_errors?.[0] ||
+            err.data.detail ||
             "Error al registrarse";
           return { ok: false, error: errorMsg };
         }
-
-        return { ok: true };
-      } catch {
         return { ok: false, error: "Error de conexión con el servidor" };
       }
     },

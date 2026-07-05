@@ -4,7 +4,7 @@ from django.template.loader import render_to_string
 from .models import Notification
 import logging
 
-logger = logging.getLogger(_name_)
+logger = logging.getLogger(__name__)
 
 
 @shared_task

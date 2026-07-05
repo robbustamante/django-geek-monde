@@ -36,10 +36,8 @@ export default function PaymentPage() {
     if (user) {
       const fetchOrder = async () => {
         try {
-          const res = await apiFetch(`/api/v1/order/${orderNumber}/`);
-          if (!res.ok) throw new Error("No se pudo cargar la orden");
+          const data = await apiFetch(`/api/v1/order/${orderNumber}/`);
           
-          const data = await res.json();
           if (data.status !== 'pending') {
             throw new Error(`Esta orden ya no está pendiente de pago (Estado: ${data.status})`);
           }
@@ -63,26 +61,21 @@ export default function PaymentPage() {
     
     try {
       // Usamos el endpoint general de pago como simulador
-      const res = await apiFetch("/api/v1/payment/create_payment/", {
+      await apiFetch("/api/v1/payment/create_payment/", {
         method: "POST",
-        body: JSON.stringify({
+        body: {
           order_id: order.id,
           method: data.method,
           provider: data.provider
-        })
+        }
       });
-      
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "Error al procesar el pago");
-      }
       
       // En una integración real con Stripe, aquí manejaríamos el client_secret
       // y confirmaríamos con Stripe.js. Por ahora, asumimos éxito inmediato.
       setIsSuccess(true);
       
     } catch (err: any) {
-      setError(err.message || "Ocurrió un error al procesar la tarjeta");
+      setError(err.message || err.data?.error || "Ocurrió un error al procesar la tarjeta");
       setIsSubmitting(false);
     }
   };
