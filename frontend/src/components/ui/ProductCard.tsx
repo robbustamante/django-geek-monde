@@ -25,18 +25,23 @@ export default function ProductCard({ product }: { product: Product }) {
   const handleAddToCart = async () => {
     setIsAdding(true);
     try {
-      await apiFetch("/api/v1/cart/items/", {
+      const res = await apiFetch("/api/v1/cart/items/", {
         method: "POST",
-        body: {
+        body: JSON.stringify({
           product_id: product.id,
           quantity: 1,
-        },
+        }),
       });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Error ${res.status}: ${errText}`);
+      }
 
       setIsSuccess(true);
       setTimeout(() => setIsSuccess(false), 2000);
     } catch (error: any) {
-      console.error(error);
+      console.error("Cart Error:", error);
       alert(error.message || "Error al añadir al carrito");
     } finally {
       setIsAdding(false);

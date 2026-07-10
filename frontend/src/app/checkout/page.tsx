@@ -48,7 +48,8 @@ export default function CheckoutPage() {
   const fetchData = useCallback(async () => {
     try {
       // Fetch cart
-      const cartData = await apiFetch("/api/v1/cart/");
+      const cartRes = await apiFetch("/api/v1/cart/");
+      const cartData = await cartRes.json();
       
       if (cartData.items_count === 0) {
         router.push("/cart");
@@ -58,7 +59,8 @@ export default function CheckoutPage() {
 
       // Fetch addresses
       try {
-        const addrData = await apiFetch("/api/v1/customer/addresses/");
+        const addrRes = await apiFetch("/api/v1/customer/addresses/");
+        const addrData = await addrRes.json();
         setAddresses(addrData);
         if (addrData.length > 0) {
           const def = addrData.find((a: Address) => a.is_default) || addrData[0];
@@ -100,11 +102,12 @@ export default function CheckoutPage() {
 
       // If adding new address, save it first
       if (isAddingNew || addresses.length === 0) {
-        const newAddress = await apiFetch("/api/v1/customer/addresses/", {
+        const addrRes = await apiFetch("/api/v1/customer/addresses/", {
           method: "POST",
-          body: formData,
+          body: JSON.stringify(formData),
         });
-        
+        const newAddress = await addrRes.json();
+        if (!addrRes.ok) throw new Error(newAddress.detail || "Error al guardar la dirección");
         finalAddressId = newAddress.id;
       }
 
@@ -113,25 +116,24 @@ export default function CheckoutPage() {
       }
 
       // Create order
-      const orderData = await apiFetch("/api/v1/order/", {
+      const orderRes = await apiFetch("/api/v1/order/", {
         method: "POST",
-        body: { shipping_address_id: finalAddressId },
+        body: JSON.stringify({ shipping_address_id: finalAddressId }),
       });
+      const orderData = await orderRes.json();
+      if (!orderRes.ok) {
+        const errorDetail = orderData.error || orderData.detail ||
+                           (Array.isArray(orderData) ? orderData[0] :
+                           (typeof orderData === 'object' ? JSON.stringify(orderData) : ""));
+        throw new Error("Error al procesar la orden. " + errorDetail);
+      }
 
       // Navigate to payment screen
       router.push(`/checkout/payment/${orderData.number}`);
 
     } catch (err: any) {
       console.error("Order error", err);
-      if (err.data) {
-        // Handle DRF validation errors (which are usually arrays or objects)
-        const errorDetail = err.data.error || err.data.detail || 
-                            (Array.isArray(err.data) ? err.data[0] : 
-                            (typeof err.data === 'object' ? JSON.stringify(err.data) : ""));
-        setError("Error al procesar la orden. " + errorDetail);
-      } else {
-        setError(err.message || "Ocurrió un error inesperado");
-      }
+      setError(err.message || "Ocurrió un error inesperado");
       setSubmitting(false);
     }
   };

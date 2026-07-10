@@ -3,13 +3,14 @@ from django.dispatch import receiver
 from apps.order.models import Order
 from apps.payment.models import Payment
 from .models import Notification
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @receiver(post_save, sender=Order)
 def order_status_changed(sender, instance, created, **kwargs):
     """Crea notificación cuando se crea o cambia el estado de una orden."""
-    from .tasks import send_notification_email
-
     notification = None
 
     if created:
@@ -38,19 +39,13 @@ def order_status_changed(sender, instance, created, **kwargs):
                 order=instance,
             )
 
-    if notification and instance.status in ['pending', 'shipped', 'delivered']:
-        try:
-            send_notification_email.delay(notification.id)
-        except Exception as e:
-            import logging
-            logging.getLogger(__name__).warning(f"No se pudo encolar el email: {e}")
+    if notification:
+        logger.info(f"Notificación creada: {notification.title} para {instance.user}")
 
 
 @receiver(post_save, sender=Payment)
 def payment_completed(sender, instance, **kwargs):
     """Notifica cuando un pago se completa."""
-    from .tasks import send_notification_email
-
     if instance.status == 'completed':
         notification = Notification.objects.create(
             user=instance.order.user,
@@ -62,8 +57,4 @@ def payment_completed(sender, instance, **kwargs):
             ),
             order=instance.order,
         )
-        try:
-            send_notification_email.delay(notification.id)
-        except Exception as e:
-            import logging
-            logging.getLogger(__name__).warning(f"No se pudo encolar el email: {e}")
+        logger.info(f"Notificación de pago creada: {notification.title}")

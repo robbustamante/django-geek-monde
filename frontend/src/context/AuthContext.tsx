@@ -47,9 +47,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchUser = async (authToken: string) => {
     try {
-      const data = await apiFetch("/api/auth/user/", {
+      const res = await apiFetch("/api/auth/user/", {
         headers: { Authorization: `Token ${authToken}` },
       });
+      if (!res.ok) throw new Error("Invalid token");
+      const data = await res.json();
       setUser(data);
       setToken(authToken);
     } catch {
@@ -63,10 +65,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (email: string, password: string) => {
     try {
-      const data = await apiFetch("/api/auth/login/", {
+      const res = await apiFetch("/api/auth/login/", {
         method: "POST",
-        body: { email, password },
+        body: JSON.stringify({ email, password }),
       });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        const errorMsg =
+          data.non_field_errors?.[0] ||
+          data.email?.[0] ||
+          data.detail ||
+          "Error al iniciar sesión";
+        return { ok: false, error: errorMsg };
+      }
 
       const authToken = data.key;
       localStorage.setItem("auth_token", authToken);
@@ -79,6 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         await apiFetch("/api/v1/cart/merge-cart/", {
           method: "POST",
+          body: JSON.stringify({}),
           headers: { Authorization: `Token ${authToken}` },
         });
       } catch {
@@ -87,14 +101,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       return { ok: true };
     } catch (err: any) {
-      if (err.data) {
-        const errorMsg =
-          err.data.non_field_errors?.[0] ||
-          err.data.email?.[0] ||
-          err.data.detail ||
-          "Error al iniciar sesión";
-        return { ok: false, error: errorMsg };
-      }
       return { ok: false, error: "Error de conexión con el servidor" };
     }
   }, []);
@@ -103,23 +109,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (email: string, password1: string, password2: string) => {
       try {
         const username = email.split('@')[0] + Math.random().toString(36).substring(2, 8);
-        await apiFetch("/api/auth/registration/", {
+        const res = await apiFetch("/api/auth/registration/", {
           method: "POST",
-          body: { username, email, password1, password2 },
+          body: JSON.stringify({ username, email, password1, password2 }),
         });
 
-        return { ok: true };
-      } catch (err: any) {
-        if (err.data) {
+        const data = await res.json();
+
+        if (!res.ok) {
           const errorMsg =
-            err.data.username?.[0] ||
-            err.data.email?.[0] ||
-            err.data.password1?.[0] ||
-            err.data.non_field_errors?.[0] ||
-            err.data.detail ||
+            data.username?.[0] ||
+            data.email?.[0] ||
+            data.password1?.[0] ||
+            data.non_field_errors?.[0] ||
+            data.detail ||
             "Error al registrarse";
           return { ok: false, error: errorMsg };
         }
+
+        return { ok: true };
+      } catch {
         return { ok: false, error: "Error de conexión con el servidor" };
       }
     },

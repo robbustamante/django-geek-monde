@@ -47,10 +47,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const data = await apiFetch(`/api/v1/catalog/products/${slug}/`);
+        const res = await apiFetch(`/api/v1/catalog/products/${slug}/`);
+        if (!res.ok) throw Object.assign(new Error(), { status: res.status });
+        const data = await res.json();
         setProduct(data);
         if (data.size) setSelectedSize(data.size);
-        else setSelectedSize("M"); // Default temporal
+        else setSelectedSize("M");
       } catch (err: any) {
         setError(err.status === 404 ? "Producto no encontrado" : "Error al cargar el producto");
       } finally {
@@ -64,18 +66,21 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
     if (!product) return;
     setIsAdding(true);
     try {
-      await apiFetch("/api/v1/cart/items/", {
+      const res = await apiFetch("/api/v1/cart/items/", {
         method: "POST",
-        body: {
+        body: JSON.stringify({
           product_id: product.id,
           quantity: quantity,
-        },
+        }),
       });
-
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || err.detail || "Error al agregar al carrito");
+      }
       setIsSuccess(true);
       setTimeout(() => setIsSuccess(false), 2000);
-    } catch (err) {
-      alert("No se pudo agregar al carrito");
+    } catch (err: any) {
+      alert(err.message || "No se pudo agregar al carrito");
     } finally {
       setIsAdding(false);
     }
